@@ -1,0 +1,80 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
+
+buildscript {
+
+    ext {
+
+        compose_version = '1.2.0'
+
+        versions = [
+                "kotlin": '1.8.2',
+                "compose": '1.1.1',
+                "dagger": '2.42',
+                "coroutines": '1.3.9',
+                "room": '2.4.2',
+                "hilt_navigation": '1.0.0',
+                "accompanist": '0.24.10-beta'
+        ]
+
+        compose = [
+                "ui": "androidx.compose.ui:ui:$versions.compose",
+                "hilt_navigation": "androidx.hilt:hilt-navigation-compose:$versions.hilt_navigation",
+                "ui_tooling": "androidx.compose.ui:ui-tooling:$versions.compose",
+                "ui_tooling_preview": "androidx.compose.ui:ui-tooling-preview:$versions.compose",
+                "activity": 'androidx.activity:activity-compose:1.3.1'
+        ]
+
+        material = [
+                "material": "androidx.compose.material:material:$versions.compose"
+        ]
+
+        core = [
+                "ktx": 'androidx.core:core-ktx:1.8.0',
+                "lifecycle": 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.1',
+        ]
+
+        dagger = [
+                "hilt": "com.google.dagger:hilt-android:$versions.dagger",
+                "hilt_android_compiler": "com.google.dagger:hilt-android-compiler:$versions.dagger",
+        ]
+
+        coroutines = [
+                "kotlinx_coroutines": "org.jetbrains.kotlinx:kotlinx-coroutines-android:$versions.coroutines",
+                "coroutines_play_services": "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:$versions.coroutines"
+        ]
+
+        lottie = [
+                "compose": "com.airbnb.android:lottie-compose:4.0.0"
+        ]
+
+        accompanist = [
+                "navigation_animation": "com.google.accompanist:accompanist-navigation-animation:$versions.accompanist"
+        ]
+
+        room = [
+                "runtime": "androidx.room:room-runtime:$versions.room",
+                "ktx": "androidx.room:room-ktx:$versions.room",
+                "compiler": "androidx.room:room-compiler:$versions.room"
+        ]
+
+        androidlibs = [
+                "app_compat": "androidx.appcompat:appcompat:1.4.2"
+        ]
+    }
+
+    repositories {
+        google()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath "com.android.tools.build:gradle:7.1.1"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.0"
+        classpath "com.google.dagger:hilt-android-gradle-plugin:2.38.1"
+    }
+
+}
