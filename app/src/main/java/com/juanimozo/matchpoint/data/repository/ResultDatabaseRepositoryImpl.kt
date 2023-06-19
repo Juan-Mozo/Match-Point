@@ -25,9 +25,9 @@ class ResultDatabaseRepositoryImpl(
         emit(Resource.Success(data = matches))
     }
 
-    override fun deleteMatch(id: Int): Flow<Resource<Boolean>> = flow {
+    override fun deleteMatch(match: Match): Flow<Resource<Boolean>> = flow {
         try {
-            db.deleteMatch(id)
+            db.deleteMatch(match = match)
             emit(Resource.Success())
         } catch (e: Exception) {
             emit(Resource.Error(message = e.message))

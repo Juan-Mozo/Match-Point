@@ -1,21 +1,19 @@
 package com.juanimozo.matchpoint.util
 
 import androidx.compose.ui.graphics.Color
-import com.juanimozo.matchpoint.ui.theme.LooserRed
 import com.juanimozo.matchpoint.ui.theme.NavyBlue
-import com.juanimozo.matchpoint.ui.theme.WinnerGreen
 
-sealed class Teams(val int: Int) {
-    class Team1(int: Int = 1): Teams(int)
-    class Team2(int: Int = 2): Teams(int)
+sealed class Teams() {
+    class Team1(): Teams()
+    class Team2(): Teams()
 
     companion object {
 
         fun getTeamColor(team: Teams, winnerTeam: Teams? = null): Color {
             val color: Color = if (winnerTeam != null) {
                 when (winnerTeam) {
-                    is Team1 -> { if (team == Team1()) { WinnerGreen } else { LooserRed }}
-                    is Team2 -> { if (team == Team2()) { WinnerGreen } else { LooserRed }}
+                    is Team1 -> { if (team is Team1) { NavyBlue } else { Color.Gray }}
+                    is Team2 -> { if (team is Team2) { NavyBlue } else { Color.Gray }}
                 }
             } else {
                 NavyBlue
@@ -27,7 +25,7 @@ sealed class Teams(val int: Int) {
         fun convertTeamToInt(v: Teams?): Int {
             // When the winner is team 1 return 1 and when is team 2 return 2
             return if (v != null) {
-                if (v == Team1()) {
+                if (v is Team1) {
                     1
                 } else {
                     2

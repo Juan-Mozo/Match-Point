@@ -10,6 +10,6 @@ interface ResultDatabaseRepository {
 
     fun getAllMatches(): Flow<Resource<List<Match>>>
 
-    fun deleteMatch(id: Int): Flow<Resource<Boolean>>
+    fun deleteMatch(match: Match): Flow<Resource<Boolean>>
 
 }

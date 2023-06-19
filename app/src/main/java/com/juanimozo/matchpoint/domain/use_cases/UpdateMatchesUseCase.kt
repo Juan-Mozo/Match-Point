@@ -12,7 +12,7 @@ class UpdateMatchesUseCase(
         return repository.insertMatch(match)
     }
 
-    fun deleteMatch(matchId: Int): Flow<Resource<Boolean>> {
-        return repository.deleteMatch(matchId)
+    fun deleteMatch(match: Match): Flow<Resource<Boolean>> {
+        return repository.deleteMatch(match)
     }
 }
