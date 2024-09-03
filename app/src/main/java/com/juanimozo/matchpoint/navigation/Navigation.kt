@@ -9,7 +9,7 @@ import com.juanimozo.matchpoint.presentation.*
 import com.juanimozo.matchpoint.presentation.history.HistoryScreen
 import com.juanimozo.matchpoint.presentation.history.HistoryViewModel
 import com.juanimozo.matchpoint.presentation.match.CurrentMatchScreen
-import com.juanimozo.matchpoint.presentation.match.HomeScreen
+import com.juanimozo.matchpoint.presentation.HomeScreen
 
 @Composable
 fun Navigation(navController: NavHostController, matchViewModel: MatchViewModel, historyViewModel: HistoryViewModel) {
