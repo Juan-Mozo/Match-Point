@@ -7,6 +7,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.juanimozo.matchpoint.data.database.entity.Match
+import com.juanimozo.matchpoint.domain.model.MatchWithTeamsModel
+import com.juanimozo.matchpoint.domain.model.TeamModel
 import com.juanimozo.matchpoint.domain.use_cases.ResultUseCases
 import com.juanimozo.matchpoint.navigation.Screens
 import com.juanimozo.matchpoint.presentation.history.event.HistoryEvents
@@ -46,16 +48,25 @@ class MatchViewModel @Inject constructor(
 
     // Match
     fun startMatch(currentTime: Long, currentDate: String, simplifiedDate: String, navController: NavController) {
-        if (fieldState.value.team1Name.isBlank() || fieldState.value.team2Name.isBlank() ) {
-            // Show SnackBar
+        val v = _fieldState.value
+        // Check that no player field is empty
+        if (v.matchType == MatchType.SINGLES && v.player1Name.isBlank() || v.player2Name.isBlank()
+            || v.matchType == MatchType.DOUBLES && v.player1Name.isBlank() || v.player2Name.isBlank() ||
+                v.player3Name.isNullOrBlank() || v.player4Name.isNullOrBlank()
+            ) {
             viewModelScope.launch {
                 _userEventsState.emit(UserEvents(isMessageShowed = true))
             }
         } else {
             // Update State
             _currentMatchState.value = currentMatchState.value.copy(
-                date = currentDate,
-                simplifiedDate = simplifiedDate
+                match = MatchWithTeamsModel(
+                    team1 = TeamModel(),
+                    team2 = TeamModel(),
+                    courtName = fieldState.value.courtName,
+                    date = currentDate,
+                    simplifiedDate = simplifiedDate
+                )
             )
             // Start Chronometer
             _chronometerState.value = chronometerState.value.copy(
@@ -72,8 +83,6 @@ class MatchViewModel @Inject constructor(
         _chronometerState.value = chronometerState.value.copy(
             isRunning = false,
         )
-        // Determine winner team
-        handleWinnerTeam()
         // Save Match
         saveMatch()
         // End Match
@@ -91,18 +100,14 @@ class MatchViewModel @Inject constructor(
             is Sets.ThirdSet -> 3
         }
 
-        val winnerTeam = Teams.convertTeamToInt(m.winnerTeam)
-        val winnerFirstSet = Teams.convertTeamToInt(m.winnerFirstSet)
-        val winnerSecondSet = Teams.convertTeamToInt(m.winnerSecondSet)
-        val winnerThirdSet = Teams.convertTeamToInt(m.winnerThirdSet)
-
         // Update last set played when match didn't end with 3 complete sets
-        var firstSetTeam1 = m.team1GamesFirstSet
-        var firstSetTeam2 = m.team2GamesFirstSet
-        var secondSetTeam1 = m.team1GamesSecondSet
-        var secondSetTeam2 = m.team2GamesSecondSet
-        var thirdSetTeam1 = m.team1GamesThirdSet
-        var thirdSetTeam2 = m.team2GamesThirdSet
+        var firstSetTeam1 = m.match.set1Team1
+        var firstSetTeam2 = m.match.set1Team2
+        var secondSetTeam1 = m.match.set2Team1
+        var secondSetTeam2 = m.match.set2Team2
+        var thirdSetTeam1 = m.match.set3Team1
+        var thirdSetTeam2 = m.match.set3Team2
+
         when (m.currentSet) {
             Sets.FirstSet -> {
                 firstSetTeam1 = m.currentSetTeam1
@@ -119,53 +124,41 @@ class MatchViewModel @Inject constructor(
         }
         updateLastSetToState()
 
-        // Save Values
-        updateMatchesJob?.cancel()
-        updateMatchesJob = resultUseCases.updateMatchesUseCase.insertMatch(
-            Match(
-                team1Name = fieldState.value.team1Name,
-                team2Name = fieldState.value.team2Name,
-                date = m.date,
-                simplifiedDate = m.simplifiedDate,
+        // Update current match with final results
+        _currentMatchState.value = currentMatchState.value.copy(
+            match = currentMatchState.value.match.copy(
                 duration = chronometerState.value.elapsedTime,
-                courtName = fieldState.value.courtName,
                 numberOfSets = numberOfSets,
                 set1Team1 = firstSetTeam1,
                 set1Team2 = firstSetTeam2,
-                winnerFirstSet = winnerFirstSet,
                 set2Team1 = secondSetTeam1,
                 set2Team2 = secondSetTeam2,
-                winnerSecondSet = winnerSecondSet,
                 set3Team1 = thirdSetTeam1,
                 set3Team2 = thirdSetTeam2,
-                winnerThirdSet = winnerThirdSet,
-                winnerTeam = winnerTeam,
             )
+        )
+
+        // Save Values
+        updateMatchesJob?.cancel()
+        updateMatchesJob = resultUseCases.updateMatchesUseCase.insertMatch(
+            _currentMatchState.value.match
         ).onEach { result ->
-            when (result) {
-                is Resource.Success -> {
-                    Log.e("VM", "Saved Successfully")
+                when (result) {
+                    is Resource.Success -> {
+                        Log.e("VM", "Saved Successfully")
+                    }
+
+                    is Resource.Error -> {
+                        Log.e("VM", result.message!!)
+                    }
                 }
-                is Resource.Error -> {
-                    Log.e("VM", result.message!!)
-                }
-            }
-        }.launchIn(CoroutineScope(Dispatchers.IO))
+            }.launchIn(CoroutineScope(Dispatchers.IO))
     }
 
     // Registration
     fun onRegistrationEvent(event: NewMatchEvents) {
         when (event) {
-            is NewMatchEvents.UpdateTeam1Name -> {
-                _fieldState.value = fieldState.value.copy(
-                    team1Name = event.name
-                )
-            }
-            is NewMatchEvents.UpdateTeam2Name -> {
-                _fieldState.value = fieldState.value.copy(
-                    team2Name = event.name
-                )
-            }
+
             is NewMatchEvents.UpdateCourtName -> {
                 _fieldState.value = fieldState.value.copy(
                     courtName = event.name
@@ -174,6 +167,27 @@ class MatchViewModel @Inject constructor(
             is NewMatchEvents.UpdateCountPoints -> {
                 _fieldState.value = fieldState.value.copy(
                     countPoints = event.isSelected
+                )
+            }
+            is NewMatchEvents.UpdateMatchType -> TODO()
+            is NewMatchEvents.UpdatePlayer1Name -> {
+                _fieldState.value = fieldState.value.copy(
+                    player1Name = event.name
+                )
+            }
+            is NewMatchEvents.UpdatePlayer2Name -> {
+                _fieldState.value = fieldState.value.copy(
+                    player2Name = event.name
+                )
+            }
+            is NewMatchEvents.UpdatePlayer3Name -> {
+                _fieldState.value = fieldState.value.copy(
+                    player3Name = event.name
+                )
+            }
+            is NewMatchEvents.UpdatePlayer4Name -> {
+                _fieldState.value = fieldState.value.copy(
+                    player4Name = event.name
                 )
             }
         }
@@ -193,29 +207,9 @@ class MatchViewModel @Inject constructor(
         _chronometerState.value = ChronometerState()
     }
 
-    fun updateCurrentMatchState(match: Match) {
-        val winnerTeam = Teams.convertIntToTeam(match.winnerTeam)
-        val winnerFirstSet = Teams.convertIntToTeam(match.winnerFirstSet)
-        val winnerSecondSet = Teams.convertIntToTeam(match.winnerSecondSet)
-        val winnerThirdSet = Teams.convertIntToTeam(match.winnerThirdSet)
-
+    fun updateCurrentMatchState(match: MatchWithTeamsModel) {
         _currentMatchState.value = currentMatchState.value.copy(
-            date = match.date,
-            simplifiedDate = match.simplifiedDate,
-            duration = match.duration,
-            team1Name = match.team1Name,
-            team2Name = match.team2Name,
-            courtName = match.courtName,
-            team1GamesFirstSet = match.set1Team1,
-            team2GamesFirstSet = match.set1Team2,
-            winnerFirstSet = winnerFirstSet ?: Teams.Team1(),
-            team1GamesSecondSet = match.set2Team1 ?: 0,
-            team2GamesSecondSet = match.set2Team2 ?: 0,
-            winnerSecondSet = winnerSecondSet,
-            team1GamesThirdSet = match.set3Team1 ?: 0,
-            team2GamesThirdSet = match.set3Team2 ?: 0,
-            winnerThirdSet = winnerThirdSet,
-            winnerTeam = winnerTeam ?: Teams.Team1()
+            match = match
         )
     }
 
@@ -435,28 +429,31 @@ class MatchViewModel @Inject constructor(
                     Sets.FirstSet -> {
                         _currentMatchState.value = m.copy(
                             currentSet = Sets.SecondSet,
-                            team1GamesFirstSet = m.currentSetTeam1 + 1,
-                            team2GamesFirstSet = m.currentSetTeam2,
                             currentSetTeam1 = 0,
                             currentSetTeam2 = 0,
-                            winnerFirstSet = Teams.Team1()
+                            match = m.match.copy(
+                                set1Team1 = m.currentSetTeam1 + 1,
+                                set1Team2 = m.currentSetTeam2
+                            )
                         )
                     }
                     Sets.SecondSet -> {
                         _currentMatchState.value = m.copy(
                             currentSet = Sets.ThirdSet,
-                            team1GamesSecondSet = m.currentSetTeam1 + 1,
-                            team2GamesSecondSet = m.currentSetTeam2,
                             currentSetTeam1 = 0,
                             currentSetTeam2 = 0,
-                            winnerSecondSet = Teams.Team1()
+                            match = m.match.copy(
+                                set2Team1 = m.currentSetTeam1 + 1,
+                                set2Team2 = m.currentSetTeam2
+                            )
                         )
                     }
                     Sets.ThirdSet -> {
                         _currentMatchState.value = m.copy(
-                            team1GamesThirdSet = m.currentSetTeam1 + 1,
-                            team2GamesThirdSet = m.currentSetTeam2,
-                            winnerThirdSet = Teams.Team1()
+                            match = m.match.copy(
+                                set3Team1 = m.currentSetTeam1 + 1,
+                                set3Team2 = m.currentSetTeam2
+                            )
                         )
                         endMatch()
                     }
@@ -467,28 +464,31 @@ class MatchViewModel @Inject constructor(
                     Sets.FirstSet -> {
                         _currentMatchState.value = m.copy(
                             currentSet = Sets.SecondSet,
-                            team1GamesFirstSet = m.currentSetTeam1,
-                            team2GamesFirstSet = m.currentSetTeam2 + 1,
                             currentSetTeam1 = 0,
                             currentSetTeam2 = 0,
-                            winnerFirstSet = Teams.Team2()
+                            match = m.match.copy(
+                                set1Team1 = m.currentSetTeam1,
+                                set1Team2 = m.currentSetTeam2 + 1
+                            )
                         )
                     }
                     Sets.SecondSet -> {
                         _currentMatchState.value = m.copy(
                             currentSet = Sets.ThirdSet,
-                            team1GamesSecondSet = m.currentSetTeam1,
-                            team2GamesSecondSet = m.currentSetTeam2 + 1,
                             currentSetTeam1 = 0,
                             currentSetTeam2 = 0,
-                            winnerSecondSet = Teams.Team2()
+                            match = m.match.copy(
+                                set2Team1 = m.currentSetTeam1,
+                                set2Team2 = m.currentSetTeam2 + 1
+                            )
                         )
                     }
                     Sets.ThirdSet -> {
                         _currentMatchState.value = m.copy(
-                            team1GamesThirdSet = m.currentSetTeam1,
-                            team2GamesThirdSet = m.currentSetTeam2 + 1,
-                            winnerThirdSet = Teams.Team2()
+                            match = m.match.copy(
+                                set3Team1 = m.currentSetTeam1,
+                                set3Team2 = m.currentSetTeam2 + 1
+                            )
                         )
                         endMatch()
                     }
@@ -504,82 +504,31 @@ class MatchViewModel @Inject constructor(
         )
     }
 
-    private fun handleWinnerTeam() {
-        val m = currentMatchState.value
-        when (m.winnerFirstSet) {
-            is Teams.Team1 -> {
-                when (m.currentSet) {
-                    Sets.FirstSet -> {
-                        _currentMatchState.value = m.copy(
-                            winnerTeam = Teams.Team1()
-                        )
-                    }
-                    Sets.SecondSet -> {
-                        if (m.winnerSecondSet is Teams.Team1) {
-                            _currentMatchState.value = m.copy(
-                                winnerTeam = Teams.Team1()
-                            )
-                        }
-                    }
-                    Sets.ThirdSet -> {
-                        if (m.winnerSecondSet is Teams.Team1 || m.winnerThirdSet is Teams.Team1) {
-                            _currentMatchState.value = m.copy(
-                                winnerTeam = Teams.Team1()
-                            )
-                        }
-                    }
-                }
-            }
-            is Teams.Team2 -> {
-                when (m.currentSet) {
-                    Sets.FirstSet -> {
-                        _currentMatchState.value = m.copy(
-                            winnerTeam = Teams.Team2()
-                        )
-                    }
-                    Sets.SecondSet -> {
-                        if (m.winnerSecondSet is Teams.Team2) {
-                            _currentMatchState.value = m.copy(
-                                winnerTeam = Teams.Team2()
-                            )
-                        }
-                    }
-                    Sets.ThirdSet -> {
-                        if (m.winnerSecondSet is Teams.Team2 || m.winnerThirdSet is Teams.Team2) {
-                            _currentMatchState.value = m.copy(
-                                winnerTeam = Teams.Team2()
-                            )
-                        }
-                    }
-                }
-            }
-            else -> {
-                _currentMatchState.value = m.copy(
-                    winnerTeam = null
-                )
-            }
-        }
-    }
-
     private fun updateLastSetToState() {
         val m = currentMatchState.value
         when (m.currentSet) {
             is Sets.FirstSet -> {
                 _currentMatchState.value = m.copy(
-                    team1GamesFirstSet = m.currentSetTeam1,
-                    team2GamesFirstSet = m.currentSetTeam2
+                    match = m.match.copy(
+                        set1Team1 = m.currentSetTeam1,
+                        set1Team2 = m.currentSetTeam2
+                    )
                 )
             }
             is Sets.SecondSet -> {
                 _currentMatchState.value = m.copy(
-                    team1GamesSecondSet = m.currentSetTeam1,
-                    team2GamesSecondSet = m.currentSetTeam2
+                    match = m.match.copy(
+                        set2Team1 = m.currentSetTeam1,
+                        set2Team2 = m.currentSetTeam2
+                    )
                 )
             }
             is Sets.ThirdSet -> {
                 _currentMatchState.value = m.copy(
-                    team1GamesThirdSet = m.currentSetTeam1,
-                    team2GamesThirdSet = m.currentSetTeam2
+                    match = m.match.copy(
+                        set3Team1 = m.currentSetTeam1,
+                        set3Team2 = m.currentSetTeam2
+                    )
                 )
             }
         }

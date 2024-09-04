@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.juanimozo.matchpoint.data.database.entity.Match
+import com.juanimozo.matchpoint.domain.model.MatchWithTeamsModel
 import com.juanimozo.matchpoint.ui.theme.BackgroundWhite
 import com.juanimozo.matchpoint.ui.theme.LightNavyBlue
 import com.juanimozo.matchpoint.ui.theme.Shapes
@@ -37,7 +38,7 @@ import kotlin.math.roundToInt
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun HistoryCard(
-    match: Match,
+    match: MatchWithTeamsModel,
     isRevealed: Boolean = true,
     cardOffset: Float,
     cardHeight: Dp,

@@ -5,6 +5,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.juanimozo.matchpoint.data.database.entity.Match
+import com.juanimozo.matchpoint.domain.model.MatchWithTeamsModel
 import com.juanimozo.matchpoint.domain.use_cases.ResultUseCases
 import com.juanimozo.matchpoint.presentation.history.event.HistoryEvents
 import com.juanimozo.matchpoint.presentation.history.state.PastMatchesState
@@ -30,7 +31,7 @@ class HistoryViewModel @Inject constructor(
 
     fun getAllMatches() {
         getMatchesJob?.cancel()
-        getMatchesJob = resultUseCases.getMatchesUseCase().onEach { result ->
+        getMatchesJob = resultUseCases.getMatchesUseCase.getAllMatches().onEach { result ->
             when (result) {
                 is Resource.Success -> {
                     if (result.data != null) {
@@ -44,7 +45,39 @@ class HistoryViewModel @Inject constructor(
         }.launchIn(CoroutineScope(Dispatchers.IO))
     }
 
-    fun deleteMatch(match: Match) {
+    fun getMatchesByPlayer() {
+        getMatchesJob?.cancel()
+        getMatchesJob = resultUseCases.getMatchesUseCase.getMatchesByPlayer(0).onEach { result ->
+            when (result) {
+                is Resource.Success -> {
+                    if (result.data != null) {
+                        _pastResultsState.value = pastResultsState.value.copy(
+                            matches = result.data
+                        )
+                    }
+                }
+                is Resource.Error -> {}
+            }
+        }.launchIn(CoroutineScope(Dispatchers.IO))
+    }
+
+    fun getMatchesByTeam() {
+        getMatchesJob?.cancel()
+        getMatchesJob = resultUseCases.getMatchesUseCase.getMatchesByTeam(0, 1).onEach { result ->
+            when (result) {
+                is Resource.Success -> {
+                    if (result.data != null) {
+                        _pastResultsState.value = pastResultsState.value.copy(
+                            matches = result.data
+                        )
+                    }
+                }
+                is Resource.Error -> {}
+            }
+        }.launchIn(CoroutineScope(Dispatchers.IO))
+    }
+
+    fun deleteMatch(match: MatchWithTeamsModel) {
         // Delete Match
         updateMatchesJob?.cancel()
         updateMatchesJob = resultUseCases.updateMatchesUseCase.deleteMatch(match).onEach { result ->

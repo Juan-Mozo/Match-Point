@@ -4,8 +4,8 @@ import com.juanimozo.matchpoint.data.database.entity.Match
 
 data class MatchWithTeamsModel(
     val id: Int = 0,
-    val team1: TeamModel,
-    val team2: TeamModel,
+    val team1: TeamModel = TeamModel(PlayerModel(0, "")),
+    val team2: TeamModel = TeamModel(PlayerModel(0, "")),
     val date: String = "",
     val simplifiedDate: String = "",
     val duration: Long = 0,

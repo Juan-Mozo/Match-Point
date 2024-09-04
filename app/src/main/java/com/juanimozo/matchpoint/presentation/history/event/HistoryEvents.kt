@@ -1,11 +1,11 @@
 package com.juanimozo.matchpoint.presentation.history.event
 
-import com.juanimozo.matchpoint.data.database.entity.Match
+import com.juanimozo.matchpoint.domain.model.MatchWithTeamsModel
 
 sealed class HistoryEvents {
 
-    class ExpandCard(val match: Match) : HistoryEvents()
+    class ExpandCard(val match: MatchWithTeamsModel) : HistoryEvents()
 
-    class CollapseCard(val match: Match) : HistoryEvents()
+    class CollapseCard(val match: MatchWithTeamsModel) : HistoryEvents()
 
 }

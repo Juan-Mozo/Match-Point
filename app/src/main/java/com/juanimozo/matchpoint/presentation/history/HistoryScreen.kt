@@ -32,7 +32,6 @@ import com.juanimozo.matchpoint.presentation.match.MatchViewModel
 
 @Composable
 fun HistoryScreen(navController: NavController, historyViewModel: HistoryViewModel, matchViewModel: MatchViewModel) {
-
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
