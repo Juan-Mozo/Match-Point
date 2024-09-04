@@ -6,6 +6,7 @@ import com.juanimozo.matchpoint.data.database.ResultDatabase
 import com.juanimozo.matchpoint.data.repository.ResultDatabaseRepositoryImpl
 import com.juanimozo.matchpoint.domain.repository.ResultDatabaseRepository
 import com.juanimozo.matchpoint.domain.use_cases.GetMatchesUseCase
+import com.juanimozo.matchpoint.domain.use_cases.PlayerUseCase
 import com.juanimozo.matchpoint.domain.use_cases.UpdateMatchesUseCase
 import com.juanimozo.matchpoint.domain.use_cases.ResultUseCases
 import dagger.Module
@@ -20,16 +21,16 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideForecastDatabase(app: Application): ResultDatabase {
+    fun provideResultDatabase(app: Application): ResultDatabase {
         return Room.databaseBuilder(
-            app, ResultDatabase::class.java, "forecast.db"
+            app, ResultDatabase::class.java, "result.db"
         )
             .build()
     }
 
     @Provides
     @Singleton
-    fun provideForecastDatabaseRepository(
+    fun provideResultDatabaseRepository(
         db: ResultDatabase
     ): ResultDatabaseRepository {
         return ResultDatabaseRepositoryImpl(db.dao)
@@ -37,10 +38,11 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideForecastUseCases(repository: ResultDatabaseRepository): ResultUseCases {
+    fun provideResultUseCases(repository: ResultDatabaseRepository): ResultUseCases {
         return ResultUseCases(
             updateMatchesUseCase = UpdateMatchesUseCase(repository),
-            getMatchesUseCase = GetMatchesUseCase(repository)
+            getMatchesUseCase = GetMatchesUseCase(repository),
+            playerUseCase = PlayerUseCase(repository)
         )
     }
 
