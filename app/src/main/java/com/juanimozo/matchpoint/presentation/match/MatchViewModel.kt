@@ -6,18 +6,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
-import com.juanimozo.matchpoint.data.database.entity.Match
 import com.juanimozo.matchpoint.domain.model.MatchWithTeamsModel
+import com.juanimozo.matchpoint.domain.model.PlayerModel
 import com.juanimozo.matchpoint.domain.model.TeamModel
 import com.juanimozo.matchpoint.domain.use_cases.ResultUseCases
 import com.juanimozo.matchpoint.navigation.Screens
-import com.juanimozo.matchpoint.presentation.history.event.HistoryEvents
 import com.juanimozo.matchpoint.presentation.match.event.UserEvents
 import com.juanimozo.matchpoint.presentation.match.event.NewMatchEvents
 import com.juanimozo.matchpoint.presentation.match.state.ChronometerState
 import com.juanimozo.matchpoint.presentation.match.state.CurrentMatchState
-import com.juanimozo.matchpoint.presentation.match.state.FieldState
-import com.juanimozo.matchpoint.presentation.history.state.PastMatchesState
+import com.juanimozo.matchpoint.presentation.match.state.NewMatchState
 import com.juanimozo.matchpoint.util.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -38,32 +36,31 @@ class MatchViewModel @Inject constructor(
     private val _chronometerState = mutableStateOf(ChronometerState())
     val chronometerState: State<ChronometerState> = _chronometerState
 
-    private val _fieldState = mutableStateOf(FieldState())
-    val fieldState: State<FieldState> = _fieldState
+    private val _newMatchState = mutableStateOf(NewMatchState())
+    val newMatchState: State<NewMatchState> = _newMatchState
 
     private val _userEventsState = MutableSharedFlow<UserEvents>()
     val userEventsState = _userEventsState.asSharedFlow()
 
     private var updateMatchesJob: Job? = null
+    private var searchPlayersJob: Job? = null
 
     // Match
     fun startMatch(currentTime: Long, currentDate: String, simplifiedDate: String, navController: NavController) {
-        val v = _fieldState.value
+        val v = _newMatchState.value
         // Check that no player field is empty
-        if (v.matchType == MatchType.SINGLES && v.player1Name.isBlank() || v.player2Name.isBlank()
-            || v.matchType == MatchType.DOUBLES && v.player1Name.isBlank() || v.player2Name.isBlank() ||
-                v.player3Name.isNullOrBlank() || v.player4Name.isNullOrBlank()
-            ) {
-            viewModelScope.launch {
-                _userEventsState.emit(UserEvents(isMessageShowed = true))
-            }
+        if (v.matchType == MatchType.SINGLES && v.player1.player == null || v.player2.player == null) {
+            showSnackbar()
+        } else if (v.matchType == MatchType.DOUBLES && v.player1.player == null || v.player2.player == null ||
+                v.player3.player == null || v.player4.player == null) {
+            showSnackbar()
         } else {
             // Update State
             _currentMatchState.value = currentMatchState.value.copy(
                 match = MatchWithTeamsModel(
-                    team1 = TeamModel(),
-                    team2 = TeamModel(),
-                    courtName = fieldState.value.courtName,
+                    team1 = TeamModel(_newMatchState.value.player1.player!!, _newMatchState.value.player3.player),
+                    team2 = TeamModel(_newMatchState.value.player2.player!!, _newMatchState.value.player4.player),
+                    courtName = _newMatchState.value.courtName,
                     date = currentDate,
                     simplifiedDate = simplifiedDate
                 )
@@ -147,7 +144,6 @@ class MatchViewModel @Inject constructor(
                     is Resource.Success -> {
                         Log.e("VM", "Saved Successfully")
                     }
-
                     is Resource.Error -> {
                         Log.e("VM", result.message!!)
                     }
@@ -158,36 +154,119 @@ class MatchViewModel @Inject constructor(
     // Registration
     fun onRegistrationEvent(event: NewMatchEvents) {
         when (event) {
-
             is NewMatchEvents.UpdateCourtName -> {
-                _fieldState.value = fieldState.value.copy(
+                _newMatchState.value = newMatchState.value.copy(
                     courtName = event.name
                 )
             }
+
             is NewMatchEvents.UpdateCountPoints -> {
-                _fieldState.value = fieldState.value.copy(
+                _newMatchState.value = newMatchState.value.copy(
                     countPoints = event.isSelected
                 )
             }
-            is NewMatchEvents.UpdateMatchType -> TODO()
-            is NewMatchEvents.UpdatePlayer1Name -> {
-                _fieldState.value = fieldState.value.copy(
-                    player1Name = event.name
+
+            is NewMatchEvents.UpdateMatchType -> {
+                _newMatchState.value = newMatchState.value.copy(
+                    matchType = event.matchType
                 )
             }
-            is NewMatchEvents.UpdatePlayer2Name -> {
-                _fieldState.value = fieldState.value.copy(
-                    player2Name = event.name
+
+            is NewMatchEvents.UpdatePlayerName -> {
+                // Show list of players
+                if (event.name.isBlank()) {
+                    getAllPlayers()
+                } else {
+                    getPlayersByName(event.name)
+                }
+
+                when (event.playerNumber) {
+                    1 -> {
+                        _newMatchState.value = newMatchState.value.copy(
+                            player1 = newMatchState.value.player1.copy(
+                                nameSearch = event.name,
+                                isListOfPlayersCollapsed = true
+                            )
+                        )
+                    }
+                    2 -> {
+                        _newMatchState.value = newMatchState.value.copy(
+                            player2 = newMatchState.value.player2.copy(
+                                nameSearch = event.name,
+                                isListOfPlayersCollapsed = true
+                            )
+                        )
+                    }
+                    3 -> {
+                        _newMatchState.value = newMatchState.value.copy(
+                            player3 = newMatchState.value.player3.copy(
+                                nameSearch = event.name,
+                                isListOfPlayersCollapsed = true
+                            )
+                        )
+                    }
+                    4 -> {
+                        _newMatchState.value = newMatchState.value.copy(
+                            player4 = newMatchState.value.player4.copy(
+                                nameSearch = event.name,
+                                isListOfPlayersCollapsed = true
+                            )
+                        )
+                    }
+                }
+            }
+
+            is NewMatchEvents.UpdateNewPlayerName -> {
+                _newMatchState.value = newMatchState.value.copy(
+                    newPlayerName = event.name
                 )
             }
-            is NewMatchEvents.UpdatePlayer3Name -> {
-                _fieldState.value = fieldState.value.copy(
-                    player3Name = event.name
-                )
+
+            is NewMatchEvents.SelectPlayer -> {
+                when (event.playerNumber) {
+                    1 -> {
+                        _newMatchState.value = newMatchState.value.copy(
+                            player1 = newMatchState.value.player1.copy(
+                                nameSearch = event.player?.name ?: "",
+                                player = event.player,
+                                isListOfPlayersCollapsed = false
+                            )
+                        )
+                    }
+                    2 -> {
+                        _newMatchState.value = newMatchState.value.copy(
+                            player2 = newMatchState.value.player2.copy(
+                                nameSearch = event.player?.name ?: "",
+                                player = event.player,
+                                isListOfPlayersCollapsed = false
+                            )
+                        )
+                    }
+                    3 -> {
+                        _newMatchState.value = newMatchState.value.copy(
+                            player3 = newMatchState.value.player3.copy(
+                                nameSearch = event.player?.name ?: "",
+                                player = event.player,
+                                isListOfPlayersCollapsed = false
+                            )
+                        )
+                    }
+                    4 -> {
+                        _newMatchState.value = newMatchState.value.copy(
+                            player4 = newMatchState.value.player4.copy(
+                                nameSearch = event.player?.name ?: "",
+                                player = event.player,
+                                isListOfPlayersCollapsed = false
+                            )
+                        )
+                    }
+                }
             }
-            is NewMatchEvents.UpdatePlayer4Name -> {
-                _fieldState.value = fieldState.value.copy(
-                    player4Name = event.name
+
+            is NewMatchEvents.ManageNewPlayerPopup -> {
+                _newMatchState.value = newMatchState.value.copy(
+                    showPopup = event.showPupup,
+                    playerIndexNewPlayer = event.playerNumber
                 )
             }
         }
@@ -203,7 +282,7 @@ class MatchViewModel @Inject constructor(
     // State
     fun cleanState() {
         _currentMatchState.value = CurrentMatchState()
-        _fieldState.value = FieldState()
+        _newMatchState.value = NewMatchState()
         _chronometerState.value = ChronometerState()
     }
 
@@ -215,7 +294,7 @@ class MatchViewModel @Inject constructor(
 
     // Points
     fun sumPoint(team: Teams) {
-        if (fieldState.value.countPoints) {
+        if (newMatchState.value.countPoints) {
             handleSumPoints(team)
         } else {
             handleSumGames(team)
@@ -315,7 +394,7 @@ class MatchViewModel @Inject constructor(
     }
 
     fun restPoint(team: Teams) {
-        if (fieldState.value.countPoints) {
+        if (newMatchState.value.countPoints) {
             when (team) {
                 is Teams.Team1 -> {
                     when (currentMatchState.value.team1Points) {
@@ -533,4 +612,81 @@ class MatchViewModel @Inject constructor(
             }
         }
     }
+
+    private fun getAllPlayers() {
+        searchPlayersJob?.cancel()
+        searchPlayersJob = resultUseCases.playerUseCase.getAllPlayers().onEach { result ->
+            when (result) {
+                is Resource.Success -> {
+                    _newMatchState.value = newMatchState.value.copy(
+                        playersFound = result.data ?: emptyList()
+                    )
+                }
+                is Resource.Error -> {
+                    Log.e("VM", result.message!!)
+                }
+            }
+        }.launchIn(CoroutineScope(Dispatchers.IO))
+    }
+
+    private fun getPlayersByName(name: String) {
+        searchPlayersJob?.cancel()
+        searchPlayersJob = resultUseCases.playerUseCase.searchPlayersByName(name).onEach { result ->
+            when (result) {
+                is Resource.Success -> {
+                    _newMatchState.value = newMatchState.value.copy(
+                        playersFound = result.data ?: emptyList()
+                    )
+                }
+                is Resource.Error -> {
+                    Log.e("VM", result.message!!)
+                }
+            }
+        }.launchIn(CoroutineScope(Dispatchers.IO))
+    }
+
+    private fun searchPlayer(name: String?) {
+        searchPlayersJob?.cancel()
+        searchPlayersJob = resultUseCases.playerUseCase.searchPlayersByName(name).onEach { result ->
+            when (result) {
+                is Resource.Success -> {
+                    _newMatchState.value = newMatchState.value.copy(
+                        playersFound = result.data ?: emptyList()
+                    )
+                }
+                is Resource.Error -> {
+                    Log.e("VM", result.message!!)
+                }
+            }
+        }.launchIn(CoroutineScope(Dispatchers.IO))
+    }
+
+    fun addNewPlayer() {
+        // Upload player to database
+        searchPlayersJob?.cancel()
+        searchPlayersJob = resultUseCases.playerUseCase.createNewPlayer(
+            PlayerModel(name = _newMatchState.value.newPlayerName)
+        ).onEach { result ->
+            when (result) {
+                is Resource.Success -> {
+                    Log.e("VM", "Saved Successfully")
+                }
+                is Resource.Error -> {
+                    Log.e("VM", result.message!!)
+                }
+            }
+        }.launchIn(CoroutineScope(Dispatchers.IO))
+
+        // Clear state
+        _newMatchState.value = newMatchState.value.copy(
+            newPlayerName = ""
+        )
+    }
+
+    fun showSnackbar() {
+        viewModelScope.launch {
+            _userEventsState.emit(UserEvents(isMessageShowed = true))
+        }
+    }
+
 }

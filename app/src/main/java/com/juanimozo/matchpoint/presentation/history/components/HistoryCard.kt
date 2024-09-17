@@ -20,18 +20,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color.Companion.Gray
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.juanimozo.matchpoint.data.database.entity.Match
 import com.juanimozo.matchpoint.domain.model.MatchWithTeamsModel
+import com.juanimozo.matchpoint.presentation.components.PlayerNameText
 import com.juanimozo.matchpoint.ui.theme.BackgroundWhite
 import com.juanimozo.matchpoint.ui.theme.LightNavyBlue
 import com.juanimozo.matchpoint.ui.theme.Shapes
-import com.juanimozo.matchpoint.util.Teams
 import kotlin.math.roundToInt
 
 @SuppressLint("UnusedTransitionTargetStateParameter")
@@ -126,22 +123,39 @@ fun HistoryCard(
                         .padding()
                         .fillMaxHeight()
                         .fillMaxWidth(0.55f),
-                    verticalArrangement = Arrangement.SpaceEvenly
+                    verticalArrangement = Arrangement.Top
                 ) {
-                    // Team 1 name
-                    Text(
-                        text = match.team1Name,
-                        style = MaterialTheme.typography.body1,
-                        color = Teams.getTeamColor(team = Teams.Team1(), winnerTeam = Teams.convertIntToTeam(match.winnerTeam)),
-                        maxLines = 1
+                    val isDoubles = match.team1.player2 != null
+                    // Team 1
+                    // Player 1
+                    PlayerNameText(
+                        name = match.team1.player1.name,
+                        isWinner = false
                     )
-                    // Team 2 name
-                    Text(
-                        text = match.team2Name,
-                        style = MaterialTheme.typography.body1,
-                        color = Teams.getTeamColor(team = Teams.Team2(), winnerTeam = Teams.convertIntToTeam(match.winnerTeam)),
-                        maxLines = 1
+                    if (isDoubles) {
+                        // Player 3
+                        PlayerNameText(
+                            paddingTop = 4.dp,
+                            name = match.team1.player2!!.name,
+                            isWinner = false
+                        )
+                    }
+
+                    // Team 2
+                    // Player 2
+                    PlayerNameText(
+                        paddingTop = 8.dp,
+                        name = match.team2.player1.name,
+                        isWinner = false
                     )
+                    if (isDoubles) {
+                        // Player 4
+                        PlayerNameText(
+                            paddingTop = 4.dp,
+                            name = match.team2.player2!!.name,
+                            isWinner = false
+                        )
+                    }
                 }
                 // Result
                 Row(
@@ -152,21 +166,18 @@ fun HistoryCard(
                 ) {
                     // First set
                     Set(
-                        team1Result = match.set1Team1.toString(),
-                        team2Result = match.set1Team2.toString(),
-                        winnerTeamInt = match.winnerFirstSet
+                        team1Result = match.set1Team1,
+                        team2Result = match.set1Team2
                     )
                     // Second Set
                     Set(
-                        team1Result = match.set2Team1.toString(),
-                        team2Result = match.set2Team2.toString(),
-                        winnerTeamInt = match.winnerSecondSet
+                        team1Result = match.set2Team1 ?: 0,
+                        team2Result = match.set2Team2 ?: 0
                     )
                     // Third Set
                     Set(
-                        team1Result = match.set3Team1.toString(),
-                        team2Result = match.set3Team2.toString(),
-                        winnerTeamInt = match.winnerThirdSet
+                        team1Result = match.set3Team1 ?: 0,
+                        team2Result = match.set3Team2 ?: 0
                     )
                 }
             }
@@ -175,39 +186,22 @@ fun HistoryCard(
 }
 
 @Composable
-private fun Set(team1Result: String, team2Result: String, winnerTeamInt: Int) {
+private fun Set(team1Result: Int, team2Result: Int) {
     Column(
         modifier = Modifier.fillMaxHeight(),
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        val team1ResultColor = if (team1Result == "0") { Gray } else { Teams.getTeamColor(team = Teams.Team1(), winnerTeam = Teams.convertIntToTeam(winnerTeamInt)) }
-        val team2ResultColor = if (team2Result == "0") { Gray } else { Teams.getTeamColor(team = Teams.Team2(), winnerTeam = Teams.convertIntToTeam(winnerTeamInt)) }
+        val isWinnerTeam1 = if (team1Result > team2Result) { MaterialTheme.typography.body2 } else { MaterialTheme.typography.body1 }
+        val isWinnerTeam2 = if (team1Result < team2Result) { MaterialTheme.typography.body2 } else { MaterialTheme.typography.body1 }
 
         Text(
-            text = team1Result,
-            style = MaterialTheme.typography.body1,
-            color = team1ResultColor
+            text = team1Result.toString(),
+            style = isWinnerTeam1
         )
         Text(
-            text = team2Result,
-            style = MaterialTheme.typography.body1,
-            color = team2ResultColor
+            text = team2Result.toString(),
+            style = isWinnerTeam2
         )
-    }
-}
-
-@Preview
-@Composable
-fun HistoryCardPreview() {
-    HistoryCard(
-        match = Match(
-            team1Name = "TEAM 1",
-            team2Name = "TEAM 2"
-        ),
-        cardOffset = 90.dp.value,
-        cardHeight = 100.dp,
-        onClick = {  },
-        onCollapse = {  }) {
     }
 }

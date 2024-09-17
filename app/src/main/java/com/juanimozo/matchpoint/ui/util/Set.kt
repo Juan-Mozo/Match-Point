@@ -4,20 +4,17 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.juanimozo.matchpoint.util.Teams
 
 @Composable
 fun Set(
     title: String,
     isCurrentSet: Boolean,
-    team1Games: String,
-    team1CurrentSetGames: String = "",
-    team2Games: String,
-    team2CurrentSetGames: String = "",
-    setWinnerTeam: Teams?
+    team1Games: Int,
+    team1CurrentSetGames: Int = 0,
+    team2Games: Int,
+    team2CurrentSetGames: Int = 0
 ) {
     Row(
         modifier = Modifier
@@ -28,7 +25,7 @@ fun Set(
         if (isCurrentSet) {
             // Team1 Games
             Text(
-                text = team1CurrentSetGames,
+                text = team1CurrentSetGames.toString(),
                 style = MaterialTheme.typography.h2
             )
             // Title
@@ -38,15 +35,14 @@ fun Set(
             )
             // Team2 Games
             Text(
-                text = team2CurrentSetGames,
+                text = team2CurrentSetGames.toString(),
                 style = MaterialTheme.typography.h2
             )
         } else {
             // Team1 Games
             Text(
-                text = team1Games,
-                style = MaterialTheme.typography.subtitle1,
-                color = Teams.getTeamColor(Teams.Team1(), winnerTeam = setWinnerTeam)
+                text = team1Games.toString(),
+                style = MaterialTheme.typography.subtitle1
             )
             // Title
             Text(
@@ -55,9 +51,8 @@ fun Set(
             )
             // Team2 Games
             Text(
-                text = team2Games,
-                style = MaterialTheme.typography.subtitle1,
-                color = Teams.getTeamColor(Teams.Team2(), winnerTeam = setWinnerTeam)
+                text = team2Games.toString(),
+                style = MaterialTheme.typography.subtitle1
             )
         }
 

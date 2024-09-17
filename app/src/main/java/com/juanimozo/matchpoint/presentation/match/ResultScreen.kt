@@ -1,4 +1,4 @@
-package com.juanimozo.matchpoint.presentation
+package com.juanimozo.matchpoint.presentation.match
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
@@ -9,18 +9,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.juanimozo.matchpoint.presentation.match.MatchViewModel
 import com.juanimozo.matchpoint.navigation.Screens
 import com.juanimozo.matchpoint.presentation.match.components.formatElapsedTime
 import com.juanimozo.matchpoint.ui.theme.NavyBlue
 import com.juanimozo.matchpoint.presentation.match.components.GenericButton
 import com.juanimozo.matchpoint.ui.util.Set
-import com.juanimozo.matchpoint.util.Teams
 
 @Composable
 fun ResultScreen(navController: NavController, viewModel: MatchViewModel) {
 
-    val match = viewModel.currentMatchState.value
+    val matchState = viewModel.currentMatchState.value
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -29,7 +27,7 @@ fun ResultScreen(navController: NavController, viewModel: MatchViewModel) {
     ) {
         // Date
         Text(
-            text = viewModel.currentMatchState.value.date,
+            text = viewModel.currentMatchState.value.match.date,
             style = MaterialTheme.typography.subtitle2
         )
         // Duration
@@ -50,21 +48,40 @@ fun ResultScreen(navController: NavController, viewModel: MatchViewModel) {
                 .padding(horizontal = 8.dp),
             horizontalArrangement = Arrangement.SpaceAround
         ) {
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth(0.5f)
-                    .padding(end = 8.dp),
-                text = viewModel.fieldState.value.team1Name,
-                style = MaterialTheme.typography.subtitle1,
-                color = Teams.getTeamColor(Teams.Team1(), winnerTeam = match.winnerTeam),
-                overflow = TextOverflow.Ellipsis
-            )
-            Text(
-                text = viewModel.fieldState.value.team2Name,
-                style = MaterialTheme.typography.subtitle1,
-                color = Teams.getTeamColor(Teams.Team2(), winnerTeam = match.winnerTeam),
-                overflow = TextOverflow.Ellipsis
-            )
+            // Team 1
+            Column(
+                modifier = Modifier.fillMaxWidth(0.5f).padding(end = 8.dp),
+                    verticalArrangement = Arrangement.SpaceAround) {
+                Text(
+                    text = matchState.match.team1.player1.name,
+                    style = MaterialTheme.typography.subtitle1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                if (matchState.match.team1.player2 != null) {
+                    Text(
+                        text = matchState.match.team1.player2.name,
+                        style = MaterialTheme.typography.subtitle1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+            // Team 2
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(end = 8.dp),
+                verticalArrangement = Arrangement.SpaceAround) {
+                Text(
+                    text = matchState.match.team2.player1.name,
+                    style = MaterialTheme.typography.subtitle1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                if (matchState.match.team2.player2 != null) {
+                    Text(
+                        text = matchState.match.team2.player2.name,
+                        style = MaterialTheme.typography.subtitle1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
         }
 
         // First Set
@@ -75,27 +92,24 @@ fun ResultScreen(navController: NavController, viewModel: MatchViewModel) {
             Set(
                 title = "Primer Set",
                 isCurrentSet = false,
-                team1Games = match.team1GamesFirstSet.toString(),
-                team2Games = match.team2GamesFirstSet.toString(),
-                setWinnerTeam = match.winnerFirstSet
+                team1Games = matchState.match.set1Team1,
+                team2Games = matchState.match.set1Team2
             )
             Set(
                 title = "Segundo Set",
                 isCurrentSet = false,
-                team1Games = match.team1GamesSecondSet.toString(),
-                team2Games = match.team2GamesSecondSet.toString(),
-                setWinnerTeam = match.winnerSecondSet
+                team1Games = matchState.match.set2Team1 ?: 0,
+                team2Games = matchState.match.set2Team2 ?: 0
             )
             Set(
                 title = "Tercer Set",
                 isCurrentSet = false,
-                team1Games = match.team1GamesThirdSet.toString(),
-                team2Games = match.team2GamesThirdSet.toString(),
-                setWinnerTeam = match.winnerThirdSet
+                team1Games = matchState.match.set3Team1 ?: 0,
+                team2Games = matchState.match.set3Team2 ?: 0
             )
         }
 
-        if (viewModel.fieldState.value.courtName.isNotBlank()) {
+        if (viewModel.newMatchState.value.courtName.isNotBlank()) {
             // Court Name
             Column(
                 modifier = Modifier.fillMaxWidth(),
@@ -106,7 +120,7 @@ fun ResultScreen(navController: NavController, viewModel: MatchViewModel) {
                     style = MaterialTheme.typography.subtitle1
                 )
                 Text(
-                    text = viewModel.fieldState.value.courtName,
+                    text = viewModel.newMatchState.value.courtName,
                     style = MaterialTheme.typography.subtitle2
                 )
             }

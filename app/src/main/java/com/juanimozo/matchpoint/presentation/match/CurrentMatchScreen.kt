@@ -10,7 +10,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.juanimozo.matchpoint.presentation.match.MatchViewModel
 import com.juanimozo.matchpoint.navigation.Screens
 import com.juanimozo.matchpoint.presentation.match.components.Chronometer
 import com.juanimozo.matchpoint.ui.theme.NavyBlue
@@ -24,7 +23,7 @@ import kotlinx.coroutines.flow.collectLatest
 @Composable
 fun CurrentMatchScreen(navController: NavController, viewModel: MatchViewModel) {
 
-    val match = viewModel.currentMatchState.value
+    val matchState = viewModel.currentMatchState.value
 
     LaunchedEffect(Unit) {
         viewModel.userEventsState.collectLatest {
@@ -55,38 +54,35 @@ fun CurrentMatchScreen(navController: NavController, viewModel: MatchViewModel) 
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val isFirstSetCurrentSet = match.currentSet == Sets.FirstSet
-            val isSecondSetCurrentSet = match.currentSet == Sets.SecondSet
-            val isThirdSetCurrentSet = match.currentSet == Sets.ThirdSet
+            val isFirstSetCurrentSet = matchState.currentSet == Sets.FirstSet
+            val isSecondSetCurrentSet = matchState.currentSet == Sets.SecondSet
+            val isThirdSetCurrentSet = matchState.currentSet == Sets.ThirdSet
             // First Set
             Set(
                 title = "Primer Set",
                 isCurrentSet = isFirstSetCurrentSet,
-                team1Games = match.team1GamesFirstSet.toString(),
-                team2Games = match.team2GamesFirstSet.toString(),
-                team1CurrentSetGames = match.currentSetTeam1.toString(),
-                team2CurrentSetGames = match.currentSetTeam2.toString(),
-                setWinnerTeam = match.winnerFirstSet
+                team1Games = matchState.match.set1Team1,
+                team2Games = matchState.match.set1Team2,
+                team1CurrentSetGames = matchState.currentSetTeam1,
+                team2CurrentSetGames = matchState.currentSetTeam2
             )
             // Second Set
             Set(
                 title = "Segundo Set",
                 isCurrentSet = isSecondSetCurrentSet,
-                team1Games = match.team1GamesSecondSet.toString(),
-                team2Games = match.team2GamesSecondSet.toString(),
-                team1CurrentSetGames = match.currentSetTeam1.toString(),
-                team2CurrentSetGames = match.currentSetTeam2.toString(),
-                setWinnerTeam = match.winnerSecondSet
+                team1Games = matchState.match.set2Team1 ?: 0,
+                team2Games = matchState.match.set2Team2 ?: 0,
+                team1CurrentSetGames = matchState.currentSetTeam1,
+                team2CurrentSetGames = matchState.currentSetTeam2
             )
             // Third Set
             Set(
                 title = "Tercer Set",
                 isCurrentSet = isThirdSetCurrentSet,
-                team1Games = match.team1GamesThirdSet.toString(),
-                team2Games = match.team2GamesThirdSet.toString(),
-                team1CurrentSetGames = match.currentSetTeam1.toString(),
-                team2CurrentSetGames = match.currentSetTeam2.toString(),
-                setWinnerTeam = match.winnerThirdSet
+                team1Games = matchState.match.set3Team1 ?: 0,
+                team2Games = matchState.match.set3Team2 ?: 0,
+                team1CurrentSetGames = matchState.currentSetTeam1,
+                team2CurrentSetGames = matchState.currentSetTeam2
             )
         }
 
@@ -95,10 +91,10 @@ fun CurrentMatchScreen(navController: NavController, viewModel: MatchViewModel) 
             Column(modifier = Modifier.fillMaxWidth(0.5f)) {
 
                 // Team 1
-                val team1points: String = if (viewModel.fieldState.value.countPoints) {
-                    match.team1Points.s
+                val team1points: String = if (viewModel.newMatchState.value.countPoints) {
+                    matchState.team1Points.s
                 } else {
-                    match.currentSetTeam1.toString()
+                    matchState.currentSetTeam1.toString()
                 }
                 TeamPointsCard(
                     points = team1points,
@@ -108,10 +104,10 @@ fun CurrentMatchScreen(navController: NavController, viewModel: MatchViewModel) 
             }
 
             // Team 2
-            val team2points: String = if (viewModel.fieldState.value.countPoints) {
-                match.team2Points.s
+            val team2points: String = if (viewModel.newMatchState.value.countPoints) {
+                matchState.team2Points.s
             } else {
-                match.currentSetTeam2.toString()
+                matchState.currentSetTeam2.toString()
             }
             TeamPointsCard(
                 points = team2points,
@@ -126,26 +122,50 @@ fun CurrentMatchScreen(navController: NavController, viewModel: MatchViewModel) 
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
+            Column(
                 modifier = Modifier.fillMaxWidth(0.33f),
-                text = viewModel.fieldState.value.team1Name,
-                style = MaterialTheme.typography.subtitle1,
-                textAlign = TextAlign.Center,
-                overflow = TextOverflow.Ellipsis
-            )
+                verticalArrangement = Arrangement.SpaceAround
+            ) {
+                Text(
+                    text = matchState.match.team1.player1.name,
+                    style = MaterialTheme.typography.subtitle1,
+                    textAlign = TextAlign.Center,
+                    overflow = TextOverflow.Ellipsis
+                )
+                if (matchState.match.team1.player2 != null) {
+                    Text(
+                        text = matchState.match.team1.player2.name,
+                        style = MaterialTheme.typography.subtitle1,
+                        textAlign = TextAlign.Center,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+
             Text(
                 modifier = Modifier.fillMaxWidth(0.5f),
                 text = "-",
                 style = MaterialTheme.typography.subtitle1,
                 textAlign = TextAlign.Center
             )
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                text = viewModel.fieldState.value.team2Name,
-                style = MaterialTheme.typography.subtitle1,
-                textAlign = TextAlign.Center,
-                overflow = TextOverflow.Ellipsis
-            )
+            Column(
+                verticalArrangement = Arrangement.SpaceAround
+            ) {
+                Text(
+                    text = matchState.match.team2.player1.name,
+                    style = MaterialTheme.typography.subtitle1,
+                    textAlign = TextAlign.Center,
+                    overflow = TextOverflow.Ellipsis
+                )
+                if (matchState.match.team2.player2 != null) {
+                    Text(
+                        text = matchState.match.team2.player2.name,
+                        style = MaterialTheme.typography.subtitle1,
+                        textAlign = TextAlign.Center,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
         }
 
         // Finish Button

@@ -3,7 +3,6 @@ package com.juanimozo.matchpoint.presentation.match.state
 import com.juanimozo.matchpoint.domain.model.MatchWithTeamsModel
 import com.juanimozo.matchpoint.util.Points
 import com.juanimozo.matchpoint.util.Sets
-import com.juanimozo.matchpoint.util.Teams
 
 data class CurrentMatchState(
     val match: MatchWithTeamsModel = MatchWithTeamsModel(),

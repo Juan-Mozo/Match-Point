@@ -11,13 +11,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.juanimozo.matchpoint.domain.model.PlayerModel
 
 @Composable
 fun Field(
     title: String,
     label: String,
     value: String,
-    onValueChange: (String) -> Unit
+    onValueChange: (String) -> Unit,
+    isListCollapsed: Boolean,
+    players: List<PlayerModel>,
+    onHeaderClick: Unit,
+    onPlayerClick: (player: PlayerModel) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -30,7 +35,7 @@ fun Field(
                 style = MaterialTheme.typography.subtitle1
             )
         }
-        Row(modifier = Modifier.padding(vertical = 12.dp)) {
+        Row(modifier = Modifier.padding(top = 12.dp)) {
             OutlinedTextField(
                 value = value,
                 onValueChange = onValueChange,
@@ -41,6 +46,15 @@ fun Field(
                     )
                 }
             )
+        }
+        if (isListCollapsed) {
+            Row (modifier = Modifier.padding(bottom = 12.dp)) {
+                PlayersList(
+                    players = players,
+                    onHeaderClick = onHeaderClick,
+                    onPlayerClick = onPlayerClick
+                )
+            }
         }
     }
 }
