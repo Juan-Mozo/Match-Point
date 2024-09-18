@@ -41,72 +41,77 @@ fun ResultScreen(navController: NavController, viewModel: MatchViewModel) {
             )
         }
 
-        // Team Names
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp),
-            horizontalArrangement = Arrangement.SpaceAround
-        ) {
-            // Team 1
-            Column(
-                modifier = Modifier.fillMaxWidth(0.5f).padding(end = 8.dp),
-                    verticalArrangement = Arrangement.SpaceAround) {
-                Text(
-                    text = matchState.match.team1.player1.name,
-                    style = MaterialTheme.typography.subtitle1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                if (matchState.match.team1.player2 != null) {
-                    Text(
-                        text = matchState.match.team1.player2.name,
-                        style = MaterialTheme.typography.subtitle1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-            }
-            // Team 2
-            Column(
-                modifier = Modifier.fillMaxWidth().padding(end = 8.dp),
-                verticalArrangement = Arrangement.SpaceAround) {
-                Text(
-                    text = matchState.match.team2.player1.name,
-                    style = MaterialTheme.typography.subtitle1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                if (matchState.match.team2.player2 != null) {
-                    Text(
-                        text = matchState.match.team2.player2.name,
-                        style = MaterialTheme.typography.subtitle1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-            }
-        }
-
-        // First Set
         Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
+            verticalArrangement = Arrangement.SpaceAround
         ) {
-            Set(
-                title = "Primer Set",
-                isCurrentSet = false,
-                team1Games = matchState.match.set1Team1,
-                team2Games = matchState.match.set1Team2
-            )
-            Set(
-                title = "Segundo Set",
-                isCurrentSet = false,
-                team1Games = matchState.match.set2Team1 ?: 0,
-                team2Games = matchState.match.set2Team2 ?: 0
-            )
-            Set(
-                title = "Tercer Set",
-                isCurrentSet = false,
-                team1Games = matchState.match.set3Team1 ?: 0,
-                team2Games = matchState.match.set3Team2 ?: 0
-            )
+            // Team Names
+            Row(
+                modifier = Modifier.padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                // Team 1
+                Column(
+                    verticalArrangement = Arrangement.SpaceAround
+                ) {
+                    Text(
+                        text = matchState.match.team1.player1.name,
+                        style = MaterialTheme.typography.subtitle1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    if (matchState.match.team1.player2 != null) {
+                        Text(
+                            text = matchState.match.team1.player2.name,
+                            style = MaterialTheme.typography.subtitle1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
+                Text(
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                    text = "-",
+                    style = MaterialTheme.typography.subtitle1
+                )
+                // Team 2
+                Column(
+                    verticalArrangement = Arrangement.SpaceAround
+                ) {
+                    Text(
+                        text = matchState.match.team2.player1.name,
+                        style = MaterialTheme.typography.subtitle1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    if (matchState.match.team2.player2 != null) {
+                        Text(
+                            text = matchState.match.team2.player2.name,
+                            style = MaterialTheme.typography.subtitle1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
+            }
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Set(
+                    title = "Primer Set",
+                    isCurrentSet = false,
+                    team1Games = matchState.match.set1Team1,
+                    team2Games = matchState.match.set1Team2
+                )
+                Set(
+                    title = "Segundo Set",
+                    isCurrentSet = false,
+                    team1Games = matchState.match.set2Team1 ?: 0,
+                    team2Games = matchState.match.set2Team2 ?: 0
+                )
+                Set(
+                    title = "Tercer Set",
+                    isCurrentSet = false,
+                    team1Games = matchState.match.set3Team1 ?: 0,
+                    team2Games = matchState.match.set3Team2 ?: 0
+                )
+            }
         }
 
         if (viewModel.newMatchState.value.courtName.isNotBlank()) {

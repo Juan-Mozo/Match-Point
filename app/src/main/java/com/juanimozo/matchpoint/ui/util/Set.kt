@@ -20,9 +20,10 @@ fun Set(
         modifier = Modifier
             .padding(vertical = 8.dp)
             .fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceEvenly
+        horizontalArrangement = Arrangement.SpaceAround
     ) {
         if (isCurrentSet) {
+
             // Team1 Games
             Text(
                 text = team1CurrentSetGames.toString(),

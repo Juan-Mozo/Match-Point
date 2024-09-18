@@ -28,7 +28,6 @@ import com.juanimozo.matchpoint.domain.model.PlayerModel
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun DynamicSelectTextField(
-    selectedValue: PlayerModel?,
     textFieldValue: String,
     options: List<PlayerModel>,
     label: String,
@@ -50,9 +49,8 @@ fun DynamicSelectTextField(
             onExpandedChange = { expanded = !expanded }
         ) {
             OutlinedTextField(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                value = selectedValue?.name ?: textFieldValue,
+                modifier = Modifier.fillMaxWidth(),
+                value = textFieldValue,
                 onValueChange = { query -> onTextValueChange(query) },
                 label = {
                     Text(
@@ -63,7 +61,7 @@ fun DynamicSelectTextField(
             )
 
             ExposedDropdownMenu(
-                modifier = Modifier.fillMaxWidth(),
+            //    modifier = Modifier.fillMaxWidth(),
                 expanded = expanded,
                 onDismissRequest = { expanded = false }
             ) {
@@ -79,6 +77,7 @@ fun DynamicSelectTextField(
                     ) {
                         Icon(
                             Icons.Filled.Add,
+                            modifier = Modifier.padding(horizontal = 8.dp),
                             contentDescription = "Add player"
                         )
                         Text("Agregar nuevo jugador",

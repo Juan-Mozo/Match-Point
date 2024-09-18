@@ -14,7 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.juanimozo.matchpoint.presentation.match.components.Field
 import com.juanimozo.matchpoint.presentation.match.event.NewMatchEvents
 import com.juanimozo.matchpoint.ui.theme.NavyBlue
 import com.juanimozo.matchpoint.presentation.match.components.GenericButton
@@ -89,7 +88,6 @@ fun NewMatchScreen(navController: NavController, viewModel: MatchViewModel) {
                     FieldTitle(text = "Equipo 1")
 
                     DynamicSelectTextField(
-                        selectedValue = newMatchState.player1.player,
                         textFieldValue = newMatchState.player1TextField,
                         options = newMatchState.playersFound,
                         label = "Jugador",
@@ -106,7 +104,6 @@ fun NewMatchScreen(navController: NavController, viewModel: MatchViewModel) {
 
                     if (isDoublesSelected) {
                         DynamicSelectTextField(
-                            selectedValue = newMatchState.player3.player,
                             textFieldValue = newMatchState.player3TextField,
                             options = newMatchState.playersFound,
                             label = "Jugador",
@@ -125,7 +122,6 @@ fun NewMatchScreen(navController: NavController, viewModel: MatchViewModel) {
                     FieldTitle(text = "Equipo 2")
 
                     DynamicSelectTextField(
-                        selectedValue = newMatchState.player2.player,
                         textFieldValue = newMatchState.player2TextField,
                         options = newMatchState.playersFound,
                         label = "Jugador",
@@ -142,7 +138,6 @@ fun NewMatchScreen(navController: NavController, viewModel: MatchViewModel) {
 
                     if (isDoublesSelected) {
                         DynamicSelectTextField(
-                            selectedValue = newMatchState.player4.player,
                             textFieldValue = newMatchState.player4TextField,
                             options = newMatchState.playersFound,
                             label = "Jugador",
@@ -181,7 +176,9 @@ fun NewMatchScreen(navController: NavController, viewModel: MatchViewModel) {
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.SpaceAround
                 ) {
-                    Column {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
                         Text(
                             text = "Contar puntos",
                             style = MaterialTheme.typography.subtitle1
@@ -189,7 +186,7 @@ fun NewMatchScreen(navController: NavController, viewModel: MatchViewModel) {
                         Text(
                             text = "(Si elige esta opción se contará punto por punto, por el contrario se contaran " + "directamente los games)",
                             style = MaterialTheme.typography.body1,
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Justify
                         )
                     }
 

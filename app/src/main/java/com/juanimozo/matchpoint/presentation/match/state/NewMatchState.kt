@@ -5,13 +5,13 @@ import com.juanimozo.matchpoint.util.MatchType
 
 data class NewMatchState(
     val matchType: MatchType = MatchType.SINGLES,
-    val player1: PlayerState = PlayerState(),
+    val player1: PlayerModel? = null,
     val player1TextField: String = "",
-    val player2: PlayerState = PlayerState(),
+    val player2: PlayerModel? = null,
     val player2TextField: String = "",
-    val player3: PlayerState = PlayerState(),
+    val player3: PlayerModel? = null,
     val player3TextField: String = "",
-    val player4: PlayerState = PlayerState(),
+    val player4: PlayerModel? = null,
     val player4TextField: String = "",
     val courtName: String = "",
     val countPoints: Boolean = false,

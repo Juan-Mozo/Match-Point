@@ -49,17 +49,17 @@ class MatchViewModel @Inject constructor(
     fun startMatch(currentTime: Long, currentDate: String, simplifiedDate: String, navController: NavController) {
         val v = _newMatchState.value
         // Check that no player field is empty
-        if (v.matchType == MatchType.SINGLES && v.player1.player == null || v.player2.player == null) {
+        if (v.matchType == MatchType.SINGLES && v.player1 == null || v.player2 == null) {
             showSnackbar()
-        } else if (v.matchType == MatchType.DOUBLES && v.player1.player == null || v.player2.player == null ||
-                v.player3.player == null || v.player4.player == null) {
+        } else if (v.matchType == MatchType.DOUBLES && v.player1 == null || v.player2 == null ||
+                v.player3 == null || v.player4 == null) {
             showSnackbar()
         } else {
             // Update State
             _currentMatchState.value = currentMatchState.value.copy(
                 match = MatchWithTeamsModel(
-                    team1 = TeamModel(_newMatchState.value.player1.player!!, _newMatchState.value.player3.player),
-                    team2 = TeamModel(_newMatchState.value.player2.player!!, _newMatchState.value.player4.player),
+                    team1 = TeamModel(_newMatchState.value.player1!!, _newMatchState.value.player3),
+                    team2 = TeamModel(_newMatchState.value.player2!!, _newMatchState.value.player4),
                     courtName = _newMatchState.value.courtName,
                     date = currentDate,
                     simplifiedDate = simplifiedDate
@@ -183,34 +183,22 @@ class MatchViewModel @Inject constructor(
                 when (event.playerNumber) {
                     1 -> {
                         _newMatchState.value = newMatchState.value.copy(
-                            player1 = newMatchState.value.player1.copy(
-                                nameSearch = event.name,
-                                isListOfPlayersCollapsed = true
-                            )
+                            player1TextField = event.name
                         )
                     }
                     2 -> {
                         _newMatchState.value = newMatchState.value.copy(
-                            player2 = newMatchState.value.player2.copy(
-                                nameSearch = event.name,
-                                isListOfPlayersCollapsed = true
-                            )
+                            player2TextField = event.name
                         )
                     }
                     3 -> {
                         _newMatchState.value = newMatchState.value.copy(
-                            player3 = newMatchState.value.player3.copy(
-                                nameSearch = event.name,
-                                isListOfPlayersCollapsed = true
-                            )
+                            player3TextField = event.name
                         )
                     }
                     4 -> {
                         _newMatchState.value = newMatchState.value.copy(
-                            player4 = newMatchState.value.player4.copy(
-                                nameSearch = event.name,
-                                isListOfPlayersCollapsed = true
-                            )
+                            player4TextField = event.name
                         )
                     }
                 }
@@ -226,38 +214,26 @@ class MatchViewModel @Inject constructor(
                 when (event.playerNumber) {
                     1 -> {
                         _newMatchState.value = newMatchState.value.copy(
-                            player1 = newMatchState.value.player1.copy(
-                                nameSearch = event.player?.name ?: "",
-                                player = event.player,
-                                isListOfPlayersCollapsed = false
-                            )
+                            player1 = event.player ?: PlayerModel(),
+                            player1TextField = event.player?.name ?: ""
                         )
                     }
                     2 -> {
                         _newMatchState.value = newMatchState.value.copy(
-                            player2 = newMatchState.value.player2.copy(
-                                nameSearch = event.player?.name ?: "",
-                                player = event.player,
-                                isListOfPlayersCollapsed = false
-                            )
+                            player2 = event.player ?: PlayerModel(),
+                            player2TextField = event.player?.name ?: ""
                         )
                     }
                     3 -> {
                         _newMatchState.value = newMatchState.value.copy(
-                            player3 = newMatchState.value.player3.copy(
-                                nameSearch = event.player?.name ?: "",
-                                player = event.player,
-                                isListOfPlayersCollapsed = false
-                            )
+                            player3 = event.player ?: PlayerModel(),
+                            player3TextField = event.player?.name ?: ""
                         )
                     }
                     4 -> {
                         _newMatchState.value = newMatchState.value.copy(
-                            player4 = newMatchState.value.player4.copy(
-                                nameSearch = event.player?.name ?: "",
-                                player = event.player,
-                                isListOfPlayersCollapsed = false
-                            )
+                            player4 = event.player ?: PlayerModel(),
+                            player4TextField = event.player?.name ?: ""
                         )
                     }
                 }

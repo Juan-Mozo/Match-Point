@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -25,13 +26,13 @@ fun MatchTypeCard(text: String, isSelected: Boolean, onClick: () -> Unit) {
     val typography = if (isSelected) {
         MaterialTheme.typography.subtitle1.copy(color = Color.White)
     } else {
-        MaterialTheme.typography.subtitle2.copy(color = NavyBlue)
+        MaterialTheme.typography.subtitle1.copy(color = NavyBlue)
     }
-
 
     Card(
         modifier = Modifier.fillMaxSize(),
         backgroundColor = backgroundColor,
+        shape = RectangleShape,
         onClick = onClick
     ) {
         Box(
