@@ -16,7 +16,7 @@ import com.juanimozo.matchpoint.presentation.history.HistoryViewModel
 import com.juanimozo.matchpoint.presentation.match.MatchViewModel
 import com.juanimozo.matchpoint.ui.theme.Green
 import com.juanimozo.matchpoint.ui.theme.NavyBlue
-import com.juanimozo.matchpoint.presentation.match.components.GenericButton
+import com.juanimozo.matchpoint.presentation.components.GenericButton
 
 @Composable
 fun HomeScreen(navController: NavController, matchViewModel: MatchViewModel, historyViewModel: HistoryViewModel) {

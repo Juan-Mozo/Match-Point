@@ -21,10 +21,13 @@ data class Match(
     @ColumnInfo(name = "numberOfSets") val numberOfSets: Int = 1,
     @ColumnInfo(name = "set1_team1") val set1Team1: Int = 0,
     @ColumnInfo(name = "set1_team2") val set1Team2: Int = 0,
-    @ColumnInfo(name = "set2_team1") val set2Team1: Int? = null,
-    @ColumnInfo(name = "set2_team2") val set2Team2: Int? = null,
-    @ColumnInfo(name = "set3_team1") val set3Team1: Int? = null,
-    @ColumnInfo(name = "set3_team2") val set3Team2: Int? = null,
+    @ColumnInfo(name = "set2_team1") val set2Team1: Int = 0,
+    @ColumnInfo(name = "set2_team2") val set2Team2: Int = 0,
+    @ColumnInfo(name = "set3_team1") val set3Team1: Int = 0,
+    @ColumnInfo(name = "set3_team2") val set3Team2: Int = 0,
+    // ToDo:: -MatchEntity- *1* / Priority: M
+    // Description: change to 0
+    @ColumnInfo(name = "winner_team") val winnerTeam: Int = 1
 ) {
     fun toMatchModel(team1: TeamModel, team2: TeamModel): MatchWithTeamsModel {
         return MatchWithTeamsModel(
@@ -41,7 +44,8 @@ data class Match(
             set2Team1 = set2Team1,
             set2Team2 = set2Team2,
             set3Team1 = set3Team1,
-            set3Team2 = set3Team2
+            set3Team2 = set3Team2,
+            winnerTeam = winnerTeam
         )
     }
 }

@@ -10,7 +10,6 @@ data class CurrentMatchState(
     val team2Points: Points = Points.Zero(),
     val currentSetTeam1: Int = 0,
     val currentSetTeam2: Int = 0,
-    val isTieBreak: Boolean = false,
     val isMatchEnded: Boolean = false,
     val currentSet: Sets = Sets.FirstSet
 )

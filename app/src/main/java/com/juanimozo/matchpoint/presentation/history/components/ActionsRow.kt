@@ -35,8 +35,6 @@ fun ActionsRow(
         ,
         shape = RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp)
     ) {
-        // ToDo:: -HistoryCard- *1* / Priority: M
-        // Description: Doesn't show
         Row(
             modifier = Modifier
                 .fillMaxSize()

@@ -114,6 +114,7 @@ class ResultDatabaseRepositoryImpl(
             val player1 = db.getPlayerById(match.player1Id)
             val player3 = match.player3Id?.let { db.getPlayerById(it) }
             val team1 = TeamModel(player1.toPlayerModel(), player3?.toPlayerModel())
+
             val player2 = db.getPlayerById(match.player2Id)
             val player4 = match.player4Id?.let { db.getPlayerById(it) }
             val team2 = TeamModel(player2.toPlayerModel(), player4?.toPlayerModel())

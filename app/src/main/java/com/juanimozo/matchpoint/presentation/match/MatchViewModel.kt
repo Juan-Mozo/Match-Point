@@ -49,29 +49,27 @@ class MatchViewModel @Inject constructor(
     fun startMatch(currentTime: Long, currentDate: String, simplifiedDate: String, navController: NavController) {
         val v = _newMatchState.value
         // Check that no player field is empty
-        if (v.matchType == MatchType.SINGLES && v.player1 == null || v.player2 == null) {
-            showSnackbar()
-        } else if (v.matchType == MatchType.DOUBLES && v.player1 == null || v.player2 == null ||
-                v.player3 == null || v.player4 == null) {
-            showSnackbar()
-        } else {
-            // Update State
-            _currentMatchState.value = currentMatchState.value.copy(
-                match = MatchWithTeamsModel(
-                    team1 = TeamModel(_newMatchState.value.player1!!, _newMatchState.value.player3),
-                    team2 = TeamModel(_newMatchState.value.player2!!, _newMatchState.value.player4),
-                    courtName = _newMatchState.value.courtName,
-                    date = currentDate,
-                    simplifiedDate = simplifiedDate
-                )
-            )
-            // Start Chronometer
-            _chronometerState.value = chronometerState.value.copy(
-                isRunning = true,
-                startTime = currentTime
-            )
-            // Navigate to Match
-            navController.navigate(Screens.CurrentMatch.route)
+        when (v.matchType) {
+            // ToDo:: -NewMatch- *1* / Priority: HIGH
+            // Description: Check for player repetition
+            MatchType.SINGLES -> {
+                if (v.player1 == null || v.player2 == null) {
+                    showSnackbar()
+                } else {
+                    updateStateBeforeStartingMatch(currentTime, currentDate, simplifiedDate)
+                    // Navigate to Match
+                    navController.navigate(Screens.CurrentMatch.route)
+                }
+            }
+            MatchType.DOUBLES -> {
+                if (v.player1 == null || v.player2 == null || v.player3 == null || v.player4 == null) {
+                    showSnackbar()
+                } else {
+                    updateStateBeforeStartingMatch(currentTime, currentDate, simplifiedDate)
+                    // Navigate to Match
+                    navController.navigate(Screens.CurrentMatch.route)
+                }
+            }
         }
     }
 
@@ -89,7 +87,7 @@ class MatchViewModel @Inject constructor(
     }
 
     private fun saveMatch() {
-        val m = currentMatchState.value
+        val m = _currentMatchState.value
 
         val numberOfSets = when (m.currentSet) {
             is Sets.FirstSet -> 1
@@ -120,6 +118,9 @@ class MatchViewModel @Inject constructor(
             }
         }
         updateLastSetToState()
+
+        // Update winner
+        updateMatchWinner()
 
         // Update current match with final results
         _currentMatchState.value = currentMatchState.value.copy(
@@ -435,42 +436,39 @@ class MatchViewModel @Inject constructor(
     }
 
     private fun handleSumGames(team: Teams) {
-        if (currentMatchState.value.currentSetTeam1 == 6 && currentMatchState.value.currentSetTeam2 == 6) {
-            // Result is 6 - 6
-            _currentMatchState.value = currentMatchState.value.copy(
-                isTieBreak = true,
-                currentSetTeam1 = 0,
-                currentSetTeam2 = 0
-            )
-        } else {
-            when (team) {
-                is Teams.Team1 -> {
-                    if (currentMatchState.value.currentSetTeam1 == 6 && currentMatchState.value.currentSetTeam2 == 5) {
-                        // Result is 7 - 5
-                        finishSet(Teams.Team1())
-                    } else if (currentMatchState.value.currentSetTeam1 == 5 && currentMatchState.value.currentSetTeam2 < 5) {
-                        // Result is 6 - 4
-                        finishSet(Teams.Team1())
-                    } else {
-                        // Result is anything else
-                        _currentMatchState.value = currentMatchState.value.copy(
-                            currentSetTeam1 = currentMatchState.value.currentSetTeam1 + 1
-                        )
-                    }
+        when (team) {
+            is Teams.Team1 -> {
+                if (currentMatchState.value.currentSetTeam1 == 6 && currentMatchState.value.currentSetTeam2 == 5) {
+                    // Result is 7 - 5
+                    finishSet(Teams.Team1())
+                } else if (currentMatchState.value.currentSetTeam1 == 5 && currentMatchState.value.currentSetTeam2 < 5) {
+                    // Result is 6 - 4
+                    finishSet(Teams.Team1())
+                } else if (currentMatchState.value.currentSetTeam1 == 6 && currentMatchState.value.currentSetTeam2 == 6) {
+                    // Result is 7 - 6
+                    finishSet(Teams.Team1())
+                } else {
+                    // Result is anything else
+                    _currentMatchState.value = currentMatchState.value.copy(
+                        currentSetTeam1 = currentMatchState.value.currentSetTeam1 + 1
+                    )
                 }
-                is Teams.Team2 -> {
-                    if (currentMatchState.value.currentSetTeam2 == 6 && currentMatchState.value.currentSetTeam1 == 5) {
-                        // Result is 5 - 7
-                        finishSet(Teams.Team2())
-                    } else if (currentMatchState.value.currentSetTeam2 == 5 && currentMatchState.value.currentSetTeam1 < 5) {
-                        // Result is 4 - 6
-                        finishSet(Teams.Team2())
-                    } else {
-                        // Result is anything else
-                        _currentMatchState.value = currentMatchState.value.copy(
-                            currentSetTeam2 = currentMatchState.value.currentSetTeam2 + 1
-                        )
-                    }
+            }
+            is Teams.Team2 -> {
+                if (currentMatchState.value.currentSetTeam2 == 6 && currentMatchState.value.currentSetTeam1 == 5) {
+                    // Result is 5 - 7
+                    finishSet(Teams.Team2())
+                } else if (currentMatchState.value.currentSetTeam2 == 5 && currentMatchState.value.currentSetTeam1 < 5) {
+                    // Result is 4 - 6
+                    finishSet(Teams.Team2())
+                } else if (currentMatchState.value.currentSetTeam1 == 6 && currentMatchState.value.currentSetTeam2 == 6) {
+                    // Result is 7 - 6
+                    finishSet(Teams.Team1())
+                }  else {
+                    // Result is anything else
+                    _currentMatchState.value = currentMatchState.value.copy(
+                        currentSetTeam2 = currentMatchState.value.currentSetTeam2 + 1
+                    )
                 }
             }
         }
@@ -663,6 +661,70 @@ class MatchViewModel @Inject constructor(
         viewModelScope.launch {
             _userEventsState.emit(UserEvents(isMessageShowed = true))
         }
+    }
+
+    private fun updateStateBeforeStartingMatch(
+        currentTime: Long,
+        currentDate: String,
+        simplifiedDate: String
+    ) {
+        // Update State
+        _currentMatchState.value = currentMatchState.value.copy(
+            match = MatchWithTeamsModel(
+                team1 = TeamModel(_newMatchState.value.player1!!, _newMatchState.value.player3),
+                team2 = TeamModel(_newMatchState.value.player2!!, _newMatchState.value.player4),
+                courtName = _newMatchState.value.courtName,
+                date = currentDate,
+                simplifiedDate = simplifiedDate
+            )
+        )
+        // Start Chronometer
+        _chronometerState.value = chronometerState.value.copy(
+            isRunning = true,
+            startTime = currentTime
+        )
+    }
+
+    private fun updateMatchWinner() {
+        val m = _currentMatchState.value.match
+        val winnerFirstSet = getWinnerOfSet(m.set1Team1, m.set1Team2)
+        val winnerSecondSet = getWinnerOfSet(m.set2Team1, m.set2Team2)
+        val winnerThirdSet = getWinnerOfSet(m.set3Team1, m.set3Team2)
+
+        if (winnerFirstSet == 1) {
+            if (winnerSecondSet == 1 || winnerThirdSet == 1) {
+                _currentMatchState.value = currentMatchState.value.copy(
+                    match = currentMatchState.value.match.copy(
+                        winnerTeam = 1
+                    )
+                )
+            }
+        }
+        if (winnerFirstSet == 2) {
+            if (winnerSecondSet == 2 || winnerThirdSet == 2) {
+                _currentMatchState.value = currentMatchState.value.copy(
+                    match = currentMatchState.value.match.copy(
+                        winnerTeam = 2
+                    )
+                )
+            }
+        }
+    }
+
+    private fun getWinnerOfSet(setTeam1: Int, setTeam2: Int): Int {
+        if (setTeam1 != 0 && setTeam2 != 0) {
+            when (setTeam1) {
+                6, 7 -> {
+                    if (setTeam2 != 7) {
+                        return 1
+                    }
+                }
+                else -> {
+                    return 2
+                }
+            }
+        }
+        return 0
     }
 
 }

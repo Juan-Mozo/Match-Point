@@ -4,11 +4,11 @@ import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import com.juanimozo.matchpoint.data.database.entity.Match
 import com.juanimozo.matchpoint.domain.model.MatchWithTeamsModel
+import com.juanimozo.matchpoint.domain.model.PlayerModel
 import com.juanimozo.matchpoint.domain.use_cases.ResultUseCases
 import com.juanimozo.matchpoint.presentation.history.event.HistoryEvents
-import com.juanimozo.matchpoint.presentation.history.state.PastMatchesState
+import com.juanimozo.matchpoint.presentation.history.state.HistoryState
 import com.juanimozo.matchpoint.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -23,11 +23,12 @@ class HistoryViewModel @Inject constructor(
     private val resultUseCases: ResultUseCases
 ): ViewModel() {
 
-    private val _pastResultsState = mutableStateOf(PastMatchesState())
-    val pastResultsState: State<PastMatchesState> = _pastResultsState
+    private val _historyState = mutableStateOf(HistoryState())
+    val historyState: State<HistoryState> = _historyState
 
     private var getMatchesJob: Job? = null
     private var updateMatchesJob: Job? = null
+    private var searchPlayersJob: Job? = null
 
     fun getAllMatches() {
         getMatchesJob?.cancel()
@@ -35,7 +36,7 @@ class HistoryViewModel @Inject constructor(
             when (result) {
                 is Resource.Success -> {
                     if (result.data != null) {
-                        _pastResultsState.value = pastResultsState.value.copy(
+                        _historyState.value = historyState.value.copy(
                             matches = result.data
                         )
                     }
@@ -51,7 +52,7 @@ class HistoryViewModel @Inject constructor(
             when (result) {
                 is Resource.Success -> {
                     if (result.data != null) {
-                        _pastResultsState.value = pastResultsState.value.copy(
+                        _historyState.value = historyState.value.copy(
                             matches = result.data
                         )
                     }
@@ -67,7 +68,7 @@ class HistoryViewModel @Inject constructor(
             when (result) {
                 is Resource.Success -> {
                     if (result.data != null) {
-                        _pastResultsState.value = pastResultsState.value.copy(
+                        _historyState.value = historyState.value.copy(
                             matches = result.data
                         )
                     }
@@ -93,36 +94,86 @@ class HistoryViewModel @Inject constructor(
         }.launchIn(CoroutineScope(Dispatchers.IO))
 
         // Update List
-        _pastResultsState.value = pastResultsState.value.copy(
-            matches = _pastResultsState.value.matches - match
+        _historyState.value = historyState.value.copy(
+            matches = _historyState.value.matches - match
         )
     }
 
     fun onHistoryEvent(event: HistoryEvents) {
         when (event) {
             is HistoryEvents.ExpandCard -> {
-                if (_pastResultsState.value.revealedCard != event.match) {
+                if (_historyState.value.revealedCard != event.match) {
                     // Add card to revealed cards
-                    _pastResultsState.value = pastResultsState.value.copy(
+                    _historyState.value = historyState.value.copy(
                         revealedCard = event.match
                     )
                 }
             }
             is HistoryEvents.CollapseCard -> {
-                if (_pastResultsState.value.revealedCard == event.match) {
+                if (_historyState.value.revealedCard == event.match) {
                     // Add card to revealed cards
-                    _pastResultsState.value = pastResultsState.value.copy(
+                    _historyState.value = historyState.value.copy(
                         revealedCard = null
                     )
                 }
+            }
+            is HistoryEvents.SelectPlayer -> {
+                _historyState.value = historyState.value.copy(
+                    playerInFilter = event.player ?: PlayerModel(),
+                    playerTextField = event.player?.name ?: ""
+                )
+            }
+            is HistoryEvents.UpdatePlayerName -> {
+                // Show list of players
+                if (event.name.isBlank()) {
+                    getAllPlayers()
+                } else {
+                    getPlayersByName(event.name)
+                }
+
+                _historyState.value = historyState.value.copy(
+                    playerTextField = event.name
+                )
             }
         }
     }
 
     fun cleanSelectedCards() {
-        _pastResultsState.value = pastResultsState.value.copy(
+        _historyState.value = historyState.value.copy(
             revealedCard = null
         )
+    }
+
+    private fun getAllPlayers() {
+        searchPlayersJob?.cancel()
+        searchPlayersJob = resultUseCases.playerUseCase.getAllPlayers().onEach { result ->
+            when (result) {
+                is Resource.Success -> {
+                    _historyState.value = historyState.value.copy(
+                        playersFound = result.data ?: emptyList()
+                    )
+                }
+                is Resource.Error -> {
+                    Log.e("VM", result.message!!)
+                }
+            }
+        }.launchIn(CoroutineScope(Dispatchers.IO))
+    }
+
+    private fun getPlayersByName(name: String) {
+        searchPlayersJob?.cancel()
+        searchPlayersJob = resultUseCases.playerUseCase.searchPlayersByName(name).onEach { result ->
+            when (result) {
+                is Resource.Success -> {
+                    _historyState.value = historyState.value.copy(
+                        playersFound = result.data ?: emptyList()
+                    )
+                }
+                is Resource.Error -> {
+                    Log.e("VM", result.message!!)
+                }
+            }
+        }.launchIn(CoroutineScope(Dispatchers.IO))
     }
 
 }

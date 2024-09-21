@@ -13,7 +13,7 @@ import androidx.navigation.NavController
 import com.juanimozo.matchpoint.navigation.Screens
 import com.juanimozo.matchpoint.presentation.match.components.Chronometer
 import com.juanimozo.matchpoint.ui.theme.NavyBlue
-import com.juanimozo.matchpoint.presentation.match.components.GenericButton
+import com.juanimozo.matchpoint.presentation.components.GenericButton
 import com.juanimozo.matchpoint.ui.util.Set
 import com.juanimozo.matchpoint.presentation.match.components.TeamPointsCard
 import com.juanimozo.matchpoint.util.Sets

@@ -1,4 +1,4 @@
-package com.juanimozo.matchpoint.presentation.match.components.field
+package com.juanimozo.matchpoint.presentation.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -33,7 +33,8 @@ fun DynamicSelectTextField(
     label: String,
     onTextValueChange: (String) -> Unit,
     onValueChangedEvent: (PlayerModel) -> Unit,
-    onAddNewPlayerEvent: () -> Unit
+    showAddNewPlayer: Boolean = true,
+    onAddNewPlayerEvent: () -> Unit = {}
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -61,28 +62,29 @@ fun DynamicSelectTextField(
             )
 
             ExposedDropdownMenu(
-            //    modifier = Modifier.fillMaxWidth(),
                 expanded = expanded,
                 onDismissRequest = { expanded = false }
             ) {
-                DropdownMenuItem(
-                    onClick = {
-                        expanded = false
-                        onAddNewPlayerEvent()
-                    }
-                ) {
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceAround,
-                        verticalAlignment = Alignment.CenterVertically
+                if (showAddNewPlayer) {
+                    DropdownMenuItem(
+                        onClick = {
+                            expanded = false
+                            onAddNewPlayerEvent()
+                        }
                     ) {
-                        Icon(
-                            Icons.Filled.Add,
-                            modifier = Modifier.padding(horizontal = 8.dp),
-                            contentDescription = "Add player"
-                        )
-                        Text("Agregar nuevo jugador",
-                            style = MaterialTheme.typography.body2
-                        )
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceAround,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                Icons.Filled.Add,
+                                modifier = Modifier.padding(horizontal = 8.dp),
+                                contentDescription = "Add player"
+                            )
+                            Text("Agregar nuevo jugador",
+                                style = MaterialTheme.typography.body2
+                            )
+                        }
                     }
                 }
 

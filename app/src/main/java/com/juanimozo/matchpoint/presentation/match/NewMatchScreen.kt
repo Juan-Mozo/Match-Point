@@ -16,10 +16,10 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.juanimozo.matchpoint.presentation.match.event.NewMatchEvents
 import com.juanimozo.matchpoint.ui.theme.NavyBlue
-import com.juanimozo.matchpoint.presentation.match.components.GenericButton
+import com.juanimozo.matchpoint.presentation.components.GenericButton
 import com.juanimozo.matchpoint.presentation.match.components.MatchTypeCard
 import com.juanimozo.matchpoint.presentation.match.components.NewPlayerPopUp
-import com.juanimozo.matchpoint.presentation.match.components.field.DynamicSelectTextField
+import com.juanimozo.matchpoint.presentation.components.DynamicSelectTextField
 import com.juanimozo.matchpoint.ui.theme.LightNavyBlue
 import com.juanimozo.matchpoint.util.Date
 import com.juanimozo.matchpoint.util.MatchType
@@ -53,8 +53,7 @@ fun NewMatchScreen(navController: NavController, viewModel: MatchViewModel) {
         snackbarHost = {
             SnackbarHost(it) { data ->
                 Snackbar(
-                    snackbarData = data,
-                    backgroundColor = LightNavyBlue,
+                    snackbarData = data
                 )
             }
         }

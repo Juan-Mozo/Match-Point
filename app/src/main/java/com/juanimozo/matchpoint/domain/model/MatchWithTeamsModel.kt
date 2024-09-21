@@ -13,10 +13,11 @@ data class MatchWithTeamsModel(
     val numberOfSets: Int = 1,
     val set1Team1: Int = 0,
     val set1Team2: Int = 0,
-    val set2Team1: Int? = null,
-    val set2Team2: Int? = null,
-    val set3Team1: Int? = null,
-    val set3Team2: Int? = null
+    val set2Team1: Int = 0,
+    val set2Team2: Int = 0,
+    val set3Team1: Int = 0,
+    val set3Team2: Int = 0,
+    val winnerTeam: Int = 0
 ) {
     fun toMatchEntity(): Match {
         return Match(
@@ -35,7 +36,8 @@ data class MatchWithTeamsModel(
             set2Team1 = set2Team1,
             set2Team2 = set2Team2,
             set3Team1 = set3Team1,
-            set3Team2 = set3Team2
+            set3Team2 = set3Team2,
+            winnerTeam = winnerTeam
         )
     }
 }
