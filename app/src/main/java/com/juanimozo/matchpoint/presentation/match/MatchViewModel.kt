@@ -21,6 +21,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -78,63 +79,67 @@ class MatchViewModel @Inject constructor(
         _chronometerState.value = chronometerState.value.copy(
             isRunning = false,
         )
-        // Save Match
-        saveMatch()
-        // End Match
+
         viewModelScope.launch {
+            // Save Match
+            saveMatch()
+            // End Match
             _userEventsState.emit(UserEvents(isMatchEnded = true))
         }
     }
 
-    private fun saveMatch() {
-        val m = _currentMatchState.value
+    private suspend fun saveMatch() {
 
-        val numberOfSets = when (m.currentSet) {
-            is Sets.FirstSet -> 1
-            is Sets.SecondSet -> 2
-            is Sets.ThirdSet -> 3
-        }
+        coroutineScope {
+            val m = _currentMatchState.value
 
-        // Update last set played when match didn't end with 3 complete sets
-        var firstSetTeam1 = m.match.set1Team1
-        var firstSetTeam2 = m.match.set1Team2
-        var secondSetTeam1 = m.match.set2Team1
-        var secondSetTeam2 = m.match.set2Team2
-        var thirdSetTeam1 = m.match.set3Team1
-        var thirdSetTeam2 = m.match.set3Team2
-
-        when (m.currentSet) {
-            Sets.FirstSet -> {
-                firstSetTeam1 = m.currentSetTeam1
-                firstSetTeam2 = m.currentSetTeam2
+            val numberOfSets = when (m.currentSet) {
+                is Sets.FirstSet -> 1
+                is Sets.SecondSet -> 2
+                is Sets.ThirdSet -> 3
             }
-            Sets.SecondSet -> {
-                secondSetTeam1 = m.currentSetTeam1
-                secondSetTeam2 = m.currentSetTeam2
-            }
-            Sets.ThirdSet -> {
-                thirdSetTeam1 = m.currentSetTeam1
-                thirdSetTeam2 = m.currentSetTeam2
-            }
-        }
-        updateLastSetToState()
 
-        // Update winner
-        updateMatchWinner()
+            // Update last set played when match didn't end with 3 complete sets
+            var firstSetTeam1 = m.match.set1Team1
+            var firstSetTeam2 = m.match.set1Team2
+            var secondSetTeam1 = m.match.set2Team1
+            var secondSetTeam2 = m.match.set2Team2
+            var thirdSetTeam1 = m.match.set3Team1
+            var thirdSetTeam2 = m.match.set3Team2
 
-        // Update current match with final results
-        _currentMatchState.value = currentMatchState.value.copy(
-            match = currentMatchState.value.match.copy(
-                duration = chronometerState.value.elapsedTime,
-                numberOfSets = numberOfSets,
-                set1Team1 = firstSetTeam1,
-                set1Team2 = firstSetTeam2,
-                set2Team1 = secondSetTeam1,
-                set2Team2 = secondSetTeam2,
-                set3Team1 = thirdSetTeam1,
-                set3Team2 = thirdSetTeam2,
+            when (m.currentSet) {
+                Sets.FirstSet -> {
+                    firstSetTeam1 = m.currentSetTeam1
+                    firstSetTeam2 = m.currentSetTeam2
+                }
+                Sets.SecondSet -> {
+                    secondSetTeam1 = m.currentSetTeam1
+                    secondSetTeam2 = m.currentSetTeam2
+                }
+                Sets.ThirdSet -> {
+                    thirdSetTeam1 = m.currentSetTeam1
+                    thirdSetTeam2 = m.currentSetTeam2
+                }
+            }
+            updateLastSetToState()
+
+            // Update winner
+            updateMatchWinner()
+
+            // Update current match with final results
+            _currentMatchState.value = currentMatchState.value.copy(
+                match = currentMatchState.value.match.copy(
+                    duration = chronometerState.value.elapsedTime,
+                    numberOfSets = numberOfSets,
+                    set1Team1 = firstSetTeam1,
+                    set1Team2 = firstSetTeam2,
+                    set2Team1 = secondSetTeam1,
+                    set2Team2 = secondSetTeam2,
+                    set3Team1 = thirdSetTeam1,
+                    set3Team2 = thirdSetTeam2,
+                )
             )
-        )
+        }
 
         // Save Values
         updateMatchesJob?.cancel()
@@ -619,22 +624,6 @@ class MatchViewModel @Inject constructor(
         }.launchIn(CoroutineScope(Dispatchers.IO))
     }
 
-    private fun searchPlayer(name: String?) {
-        searchPlayersJob?.cancel()
-        searchPlayersJob = resultUseCases.playerUseCase.searchPlayersByName(name).onEach { result ->
-            when (result) {
-                is Resource.Success -> {
-                    _newMatchState.value = newMatchState.value.copy(
-                        playersFound = result.data ?: emptyList()
-                    )
-                }
-                is Resource.Error -> {
-                    Log.e("VM", result.message!!)
-                }
-            }
-        }.launchIn(CoroutineScope(Dispatchers.IO))
-    }
-
     fun addNewPlayer() {
         // Upload player to database
         searchPlayersJob?.cancel()
@@ -712,19 +701,22 @@ class MatchViewModel @Inject constructor(
     }
 
     private fun getWinnerOfSet(setTeam1: Int, setTeam2: Int): Int {
-        if (setTeam1 != 0 && setTeam2 != 0) {
+        var winnerTeam = 0
+        // When the set ends 0-0 give to victory to neither team
+        winnerTeam = if (setTeam1 != 0 && setTeam2 != 0) {
+            // When team 1 ends with 7 points give them the victory instantly
+            // When team 1 ends with 6 points check that team 2 haven't won with tie-break
+            // When team 1 ends with less than 6 points then check if team 2 have completed the set
+            // If neither team completed the set then give the victory to neither of them
             when (setTeam1) {
-                6, 7 -> {
-                    if (setTeam2 != 7) {
-                        return 1
-                    }
-                }
-                else -> {
-                    return 2
-                }
+                6, 7 -> { if (setTeam2 != 7) { 1 } else { 2 } }
+                else -> { if (setTeam2 == 6) { 2 } else { 0 } }
             }
+        } else {
+            0
         }
-        return 0
+
+        return winnerTeam
     }
 
 }

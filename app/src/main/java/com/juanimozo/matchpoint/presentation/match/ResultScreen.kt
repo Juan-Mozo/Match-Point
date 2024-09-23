@@ -40,13 +40,15 @@ fun ResultScreen(navController: NavController, viewModel: MatchViewModel) {
                 style = MaterialTheme.typography.body1
             )
         }
-
+        // Teams and results
         Column(
             verticalArrangement = Arrangement.SpaceAround
         ) {
             // Team Names
             Row(
-                modifier = Modifier.padding(16.dp),
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 // Team 1
@@ -66,11 +68,15 @@ fun ResultScreen(navController: NavController, viewModel: MatchViewModel) {
                         )
                     }
                 }
-                Text(
-                    modifier = Modifier.padding(horizontal = 8.dp),
-                    text = "-",
-                    style = MaterialTheme.typography.subtitle1
-                )
+                Column(
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        modifier = Modifier.padding(horizontal = 8.dp),
+                        text = "-",
+                        style = MaterialTheme.typography.subtitle1
+                    )
+                }
                 // Team 2
                 Column(
                     verticalArrangement = Arrangement.SpaceAround

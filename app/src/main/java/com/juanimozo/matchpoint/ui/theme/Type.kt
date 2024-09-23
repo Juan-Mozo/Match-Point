@@ -45,8 +45,6 @@ val LightTypography = Typography(
         fontSize = 20.sp,
         color = NavyBlue
     ),
-    // ToDo:: -TYPOGRAPHY- *1* / Priority: M
-    // Description: Get bold QuickSand
     body2 = TextStyle(
         fontFamily = Fonts.QuickSandRegular,
         fontSize = 20.sp,
@@ -54,6 +52,7 @@ val LightTypography = Typography(
     ),
     button = TextStyle(
         fontFamily = Fonts.QuickSandRegular,
+        fontWeight = FontWeight.Bold,
         fontSize = 20.sp,
         color = Beige
     )

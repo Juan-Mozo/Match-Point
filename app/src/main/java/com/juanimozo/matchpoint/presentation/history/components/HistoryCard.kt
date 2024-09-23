@@ -31,6 +31,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.juanimozo.matchpoint.domain.model.MatchWithTeamsModel
 import com.juanimozo.matchpoint.domain.model.TeamModel
 import com.juanimozo.matchpoint.presentation.components.PlayerNameText
@@ -104,6 +105,8 @@ fun HistoryCard(
                 Text(
                     text = match.date,
                     style = MaterialTheme.typography.body1.copy(
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Light,
                         color = DarkGreen
                     ),
                     overflow = TextOverflow.Ellipsis
@@ -117,7 +120,8 @@ fun HistoryCard(
                 // Court
                 Column(
                     modifier = Modifier.fillMaxWidth(0.6f),
-                    horizontalAlignment = Alignment.Start
+                    horizontalAlignment = Alignment.Start,
+                    verticalArrangement = Arrangement.Center
                 ) {
                     Text(
                         text = match.courtName,
@@ -135,10 +139,10 @@ fun HistoryCard(
                     verticalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        text = match.courtName,
+                        text = match.duration.toString(),
                         style = MaterialTheme.typography.body1.copy(
-                            color = Color.LightGray,
-                            fontWeight = FontWeight.Light
+                            color = Color.Gray,
+                            fontWeight = FontWeight.Thin
                         )
                     )
                 }
@@ -150,28 +154,26 @@ fun HistoryCard(
                     .padding(horizontal = 12.dp),
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
-                val isTeam1Winner = (match.winnerTeam == 1)
-                val isTeam2Winner = (match.winnerTeam == 2)
+                val isTeam1Winner = (match.winnerTeam == 1 || match.winnerTeam == 0)
+                val isTeam2Winner = (match.winnerTeam == 2 || match.winnerTeam == 0)
 
                 Team(
                     team = match.team1,
                     resultFirstSet = match.set1Team1,
-                    resultSecondSet = match.set2Team1 ?: 0,
-                    resultThirdSet = match.set3Team1 ?: 0,
+                    resultSecondSet = match.set2Team1,
+                    resultThirdSet = match.set3Team1,
                     isWinner = isTeam1Winner
                 )
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Divider(
-                        modifier = Modifier.fillMaxWidth(0.75f)
-                    )
-                }
+                Divider(
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .fillMaxWidth()
+                )
                 Team(
                     team = match.team2,
                     resultFirstSet = match.set1Team2,
-                    resultSecondSet = match.set2Team2 ?: 0,
-                    resultThirdSet = match.set3Team2 ?: 0,
+                    resultSecondSet = match.set2Team2,
+                    resultThirdSet = match.set3Team2,
                     isWinner = isTeam2Winner
                 )
             }
@@ -193,8 +195,7 @@ private fun Team(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth(0.4f),
-
+            modifier = Modifier.fillMaxWidth(0.4f)
         ) {
             Player(
                 name = team.player1.name,
@@ -226,7 +227,7 @@ private fun Team(
 
 @Composable
 private fun Player(name: String, isWinner: Boolean) {
-    val color = if (isWinner) { Color.Black } else { Color.LightGray }
+    val color = if (isWinner) { DarkGreen } else { Color.Gray }
     Text(
         text = name,
         style = MaterialTheme.typography.body1.copy(
@@ -244,7 +245,7 @@ private fun Set(widthFraction: Float, result: Int, isWinner: Boolean) {
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        val color = if (isWinner) { Color.Black } else { Color.LightGray }
+        val color = if (isWinner) { DarkGreen } else { Color.Gray }
         Text(
             text = result.toString(),
             style = MaterialTheme.typography.body1.copy(

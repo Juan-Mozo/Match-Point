@@ -70,8 +70,8 @@ fun CurrentMatchScreen(navController: NavController, viewModel: MatchViewModel) 
             Set(
                 title = "Segundo Set",
                 isCurrentSet = isSecondSetCurrentSet,
-                team1Games = matchState.match.set2Team1 ?: 0,
-                team2Games = matchState.match.set2Team2 ?: 0,
+                team1Games = matchState.match.set2Team1,
+                team2Games = matchState.match.set2Team2,
                 team1CurrentSetGames = matchState.currentSetTeam1,
                 team2CurrentSetGames = matchState.currentSetTeam2
             )
@@ -79,8 +79,8 @@ fun CurrentMatchScreen(navController: NavController, viewModel: MatchViewModel) 
             Set(
                 title = "Tercer Set",
                 isCurrentSet = isThirdSetCurrentSet,
-                team1Games = matchState.match.set3Team1 ?: 0,
-                team2Games = matchState.match.set3Team2 ?: 0,
+                team1Games = matchState.match.set3Team1,
+                team2Games = matchState.match.set3Team2,
                 team1CurrentSetGames = matchState.currentSetTeam1,
                 team2CurrentSetGames = matchState.currentSetTeam2
             )
@@ -118,7 +118,9 @@ fun CurrentMatchScreen(navController: NavController, viewModel: MatchViewModel) 
 
         // Team names
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -146,7 +148,7 @@ fun CurrentMatchScreen(navController: NavController, viewModel: MatchViewModel) 
                 modifier = Modifier.fillMaxWidth(0.5f),
                 text = "-",
                 style = MaterialTheme.typography.subtitle1,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Start
             )
             Column(
                 verticalArrangement = Arrangement.SpaceAround

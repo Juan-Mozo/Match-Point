@@ -60,19 +60,21 @@ fun HistoryScreen(navController: NavController, historyViewModel: HistoryViewMod
                     ) {
                         Column(
                             modifier = Modifier.fillMaxWidth(),
-                            verticalArrangement = Arrangement.SpaceAround
+                            verticalArrangement = Arrangement.SpaceAround,
                         ) {
                             Row(
+                                modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.Center
                             ) {
                                 Text(
                                     modifier = Modifier.padding(8.dp),
                                     text = "HISTORIAL",
-                                    style = MaterialTheme.typography.subtitle1
+                                    style = MaterialTheme.typography.h2
                                 )
                             }
                             Row {
                                 Column(
+                                    modifier = Modifier.padding(vertical = 8.dp, horizontal = 20.dp),
                                     verticalArrangement = Arrangement.SpaceEvenly
                                 ) {
                                     Text(
@@ -104,7 +106,7 @@ fun HistoryScreen(navController: NavController, historyViewModel: HistoryViewMod
                                 .fillMaxWidth()
                                 .padding(horizontal = 16.dp, vertical = 8.dp)
                             ) {
-                                val cardHeight = 250.dp
+                                val cardHeight = 200.dp
                                 val actionRowWidth = 200.dp
 
                                 ActionsRow(

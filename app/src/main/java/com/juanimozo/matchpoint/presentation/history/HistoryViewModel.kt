@@ -46,38 +46,6 @@ class HistoryViewModel @Inject constructor(
         }.launchIn(CoroutineScope(Dispatchers.IO))
     }
 
-    fun getMatchesByPlayer() {
-        getMatchesJob?.cancel()
-        getMatchesJob = resultUseCases.getMatchesUseCase.getMatchesByPlayer(0).onEach { result ->
-            when (result) {
-                is Resource.Success -> {
-                    if (result.data != null) {
-                        _historyState.value = historyState.value.copy(
-                            matches = result.data
-                        )
-                    }
-                }
-                is Resource.Error -> {}
-            }
-        }.launchIn(CoroutineScope(Dispatchers.IO))
-    }
-
-    fun getMatchesByTeam() {
-        getMatchesJob?.cancel()
-        getMatchesJob = resultUseCases.getMatchesUseCase.getMatchesByTeam(0, 1).onEach { result ->
-            when (result) {
-                is Resource.Success -> {
-                    if (result.data != null) {
-                        _historyState.value = historyState.value.copy(
-                            matches = result.data
-                        )
-                    }
-                }
-                is Resource.Error -> {}
-            }
-        }.launchIn(CoroutineScope(Dispatchers.IO))
-    }
-
     fun deleteMatch(match: MatchWithTeamsModel) {
         // Delete Match
         updateMatchesJob?.cancel()
@@ -122,6 +90,7 @@ class HistoryViewModel @Inject constructor(
                     playerInFilter = event.player ?: PlayerModel(),
                     playerTextField = event.player?.name ?: ""
                 )
+                getMatchesByPlayer(event.player?.id ?: 0)
             }
             is HistoryEvents.UpdatePlayerName -> {
                 // Show list of players
@@ -132,7 +101,8 @@ class HistoryViewModel @Inject constructor(
                 }
 
                 _historyState.value = historyState.value.copy(
-                    playerTextField = event.name
+                    playerTextField = event.name,
+                    playerInFilter = PlayerModel()
                 )
             }
         }
@@ -172,6 +142,22 @@ class HistoryViewModel @Inject constructor(
                 is Resource.Error -> {
                     Log.e("VM", result.message!!)
                 }
+            }
+        }.launchIn(CoroutineScope(Dispatchers.IO))
+    }
+
+    private fun getMatchesByPlayer(playerId: Int) {
+        getMatchesJob?.cancel()
+        getMatchesJob = resultUseCases.getMatchesUseCase.getMatchesByPlayer(playerId).onEach { result ->
+            when (result) {
+                is Resource.Success -> {
+                    if (result.data != null) {
+                        _historyState.value = historyState.value.copy(
+                            matches = result.data
+                        )
+                    }
+                }
+                is Resource.Error -> {}
             }
         }.launchIn(CoroutineScope(Dispatchers.IO))
     }
