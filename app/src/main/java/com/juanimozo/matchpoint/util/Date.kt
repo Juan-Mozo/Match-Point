@@ -5,8 +5,8 @@ import java.util.*
 
 class Date {
 
-    private val dayAndHour = SimpleDateFormat("dd-MM-yyyy HH:mm")
-    private val dayMonthAndYear = SimpleDateFormat("dd-MM-yy")
+    private val dayAndHour = SimpleDateFormat("dd MMMM yyyy HH:mm")
+    private val dayMonthAndYear = SimpleDateFormat("dd MMMM yyyy")
 
     fun getDate(): String {
         val time = Calendar.getInstance().time

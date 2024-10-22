@@ -15,6 +15,8 @@ interface ResultDatabaseRepository {
 
     fun getPlayerById(id: Int): Flow<Resource<PlayerModel>>
 
+    fun getMatchById(id: Int): Flow<Resource<MatchWithTeamsModel>>
+
     fun searchPlayersByName(name: String?): Flow<Resource<List<PlayerModel>>>
 
     fun getAllMatches(): Flow<Resource<List<MatchWithTeamsModel>>>

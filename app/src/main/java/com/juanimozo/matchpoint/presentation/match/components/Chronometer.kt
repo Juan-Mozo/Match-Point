@@ -23,10 +23,14 @@ fun Chronometer(viewModel: MatchViewModel) {
 
 }
 
-fun formatElapsedTime(elapsedTime: Long): String {
+fun formatElapsedTime(elapsedTime: Long, simplified: Boolean = false): String {
     val seconds = elapsedTime / 1000 % 60
     val minutes = elapsedTime / 1000 / 60 % 60
     val hours = elapsedTime / 1000 / 60 / 60
 
-    return String.format("%02d:%02d:%02d", hours, minutes, seconds)
+    return if (simplified) {
+        String.format("%02dhr %02dmin", hours, minutes, seconds)
+    } else {
+        String.format("%02d:%02d:%02d", hours, minutes, seconds)
+    }
 }

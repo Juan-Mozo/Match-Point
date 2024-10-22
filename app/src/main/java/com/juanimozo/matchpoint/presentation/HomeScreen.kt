@@ -47,7 +47,9 @@ fun HomeScreen(navController: NavController, matchViewModel: MatchViewModel, his
                         .height(60.dp)
                     ,
                     color = Color.White,
-                    onClick = { matchViewModel.cleanState()
+                    onClick = {
+                        matchViewModel.cleanState()
+                        matchViewModel.getAllPlayers()
                         navController.navigate(Screens.NewMatch.route) },
                     text = "Nuevo Partido",
                     textColor = NavyBlue
@@ -63,12 +65,12 @@ fun HomeScreen(navController: NavController, matchViewModel: MatchViewModel, his
                     modifier = Modifier
                         .padding(horizontal = 64.dp)
                         .fillMaxWidth()
-                        .height(60.dp)
-                    ,
+                        .height(60.dp),
                     color = Color.White,
                     onClick = {
                         historyViewModel.getAllMatches()
                         historyViewModel.cleanSelectedCards()
+                        historyViewModel.getAllPlayers()
                         navController.navigate(Screens.History.route)
                     },
                     text = "Historial",

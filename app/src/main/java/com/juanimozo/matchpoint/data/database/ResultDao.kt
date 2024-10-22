@@ -22,13 +22,16 @@ interface ResultDao {
     @Query("SELECT * FROM players WHERE id = :id")
     fun getPlayerById(id: Int): Player
 
+    @Query("SELECT * FROM matches WHERE id = :id")
+    fun getMatchById(id: Int): Match
+
     @Query("SELECT * FROM matches ORDER BY id DESC")
     fun getAllMatches(): List<Match>?
 
-    @Query("SELECT * FROM matches WHERE (:id IN (player1Id, player2Id, player3Id, player4Id))")
+    @Query("SELECT * FROM matches WHERE :id IN (player1Id, player2Id, player3Id, player4Id) ORDER BY id DESC")
     fun getMatchesByPlayerId(id: Int): List<Match>?
 
-    @Query("SELECT * FROM matches WHERE (:player1Id IN (player1Id, player2Id) AND :player2Id IN (player1Id,player2Id)) OR (:player1Id IN (player3Id, player4Id) AND :player2Id IN (player3Id, player4Id))")
+    @Query("SELECT * FROM matches WHERE :player1Id IN (player1Id, player2Id) AND :player2Id IN (player1Id,player2Id) OR :player1Id IN (player3Id, player4Id) AND :player2Id IN (player3Id, player4Id)")
     fun getMatchesByTeam(player1Id: Int, player2Id: Int): List<Match>?
 
     @Query("SELECT * FROM players WHERE (name LIKE '%' || :string || '%')")

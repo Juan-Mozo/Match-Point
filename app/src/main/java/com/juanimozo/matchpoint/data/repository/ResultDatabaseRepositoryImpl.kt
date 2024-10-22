@@ -50,6 +50,15 @@ class ResultDatabaseRepositoryImpl(
         }
     }
 
+    override fun getMatchById(id: Int): Flow<Resource<MatchWithTeamsModel>> = flow {
+        try {
+            val match = transformMatch(listOf(db.getMatchById(id))).first()
+            emit(Resource.Success(match))
+        } catch (e: Exception) {
+            emit(Resource.Error(message = e.message))
+        }
+    }
+
     override fun searchPlayersByName(name: String?): Flow<Resource<List<PlayerModel>>> = flow {
         try {
             val playersTransformed = mutableListOf<PlayerModel>()
@@ -98,7 +107,6 @@ class ResultDatabaseRepositoryImpl(
     override fun getAllPlayers(): Flow<Resource<List<PlayerModel>>> = flow {
         try {
             val players = db.getPlayers().map { it.toPlayerModel() }
-
             if (players.isNotEmpty()) {
                 emit(Resource.Success(players))
             }

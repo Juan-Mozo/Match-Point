@@ -14,8 +14,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.juanimozo.matchpoint.ui.theme.BackgroundWhite
 import com.juanimozo.matchpoint.ui.theme.Fonts
-import com.juanimozo.matchpoint.ui.theme.Green
 import com.juanimozo.matchpoint.ui.theme.NavyBlue
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -27,7 +27,7 @@ fun TeamPointsCard(
 ) {
     Card(
         modifier = Modifier.padding(start = 16.dp, end = 8.dp),
-        backgroundColor = Color.White,
+        backgroundColor = NavyBlue,
         onClick = cardAction
     ) {
         Column(
@@ -41,7 +41,7 @@ fun TeamPointsCard(
                 style = TextStyle(
                     fontFamily = Fonts.MontserratSemiBold,
                     fontSize = 90.sp,
-                    color = Green
+                    color = Color.White
                 ),
                 textAlign = TextAlign.Justify
             )
@@ -51,10 +51,13 @@ fun TeamPointsCard(
                     .padding(bottom = 16.dp),
                 onClick = buttonAction,
                 shape = MaterialTheme.shapes.large,
-                colors = ButtonDefaults.buttonColors(backgroundColor = Green),
+                colors = ButtonDefaults.buttonColors(backgroundColor = BackgroundWhite),
                 border = BorderStroke(3.dp, NavyBlue)
             ) {
-                Text(text = "-")
+                Text(
+                    text = "-",
+                    style = MaterialTheme.typography.subtitle2
+                )
             }
         }
     }

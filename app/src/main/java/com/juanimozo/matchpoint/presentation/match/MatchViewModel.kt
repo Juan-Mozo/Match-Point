@@ -55,7 +55,7 @@ class MatchViewModel @Inject constructor(
             // Description: Check for player repetition
             MatchType.SINGLES -> {
                 if (v.player1 == null || v.player2 == null) {
-                    showSnackbar()
+                    showSnackbar("Por favor completar los campos vacíos")
                 } else {
                     updateStateBeforeStartingMatch(currentTime, currentDate, simplifiedDate)
                     // Navigate to Match
@@ -64,7 +64,7 @@ class MatchViewModel @Inject constructor(
             }
             MatchType.DOUBLES -> {
                 if (v.player1 == null || v.player2 == null || v.player3 == null || v.player4 == null) {
-                    showSnackbar()
+                    showSnackbar("Por favor completar los campos vacíos")
                 } else {
                     updateStateBeforeStartingMatch(currentTime, currentDate, simplifiedDate)
                     // Navigate to Match
@@ -268,12 +268,6 @@ class MatchViewModel @Inject constructor(
         _chronometerState.value = ChronometerState()
     }
 
-    fun updateCurrentMatchState(match: MatchWithTeamsModel) {
-        _currentMatchState.value = currentMatchState.value.copy(
-            match = match
-        )
-    }
-
     // Points
     fun sumPoint(team: Teams) {
         if (newMatchState.value.countPoints) {
@@ -468,7 +462,7 @@ class MatchViewModel @Inject constructor(
                     finishSet(Teams.Team2())
                 } else if (currentMatchState.value.currentSetTeam1 == 6 && currentMatchState.value.currentSetTeam2 == 6) {
                     // Result is 7 - 6
-                    finishSet(Teams.Team1())
+                    finishSet(Teams.Team2())
                 }  else {
                     // Result is anything else
                     _currentMatchState.value = currentMatchState.value.copy(
@@ -507,13 +501,15 @@ class MatchViewModel @Inject constructor(
                         )
                     }
                     Sets.ThirdSet -> {
-                        _currentMatchState.value = m.copy(
-                            match = m.match.copy(
-                                set3Team1 = m.currentSetTeam1 + 1,
-                                set3Team2 = m.currentSetTeam2
+                        viewModelScope.launch {
+                            _currentMatchState.value = m.copy(
+                                match = m.match.copy(
+                                    set3Team1 = m.currentSetTeam1 + 1,
+                                    set3Team2 = m.currentSetTeam2
+                                )
                             )
-                        )
-                        endMatch()
+                            endMatch()
+                        }
                     }
                 }
             }
@@ -542,13 +538,15 @@ class MatchViewModel @Inject constructor(
                         )
                     }
                     Sets.ThirdSet -> {
-                        _currentMatchState.value = m.copy(
-                            match = m.match.copy(
-                                set3Team1 = m.currentSetTeam1,
-                                set3Team2 = m.currentSetTeam2 + 1
+                        viewModelScope.launch {
+                            _currentMatchState.value = m.copy(
+                                match = m.match.copy(
+                                    set3Team1 = m.currentSetTeam1,
+                                    set3Team2 = m.currentSetTeam2 + 1
+                                )
                             )
-                        )
-                        endMatch()
+                            endMatch()
+                        }
                     }
                 }
             }
@@ -592,7 +590,7 @@ class MatchViewModel @Inject constructor(
         }
     }
 
-    private fun getAllPlayers() {
+    fun getAllPlayers() {
         searchPlayersJob?.cancel()
         searchPlayersJob = resultUseCases.playerUseCase.getAllPlayers().onEach { result ->
             when (result) {
@@ -646,9 +644,9 @@ class MatchViewModel @Inject constructor(
         )
     }
 
-    fun showSnackbar() {
+    fun showSnackbar(message: String) {
         viewModelScope.launch {
-            _userEventsState.emit(UserEvents(isMessageShowed = true))
+            _userEventsState.emit(UserEvents(snackbarMessage = message))
         }
     }
 
@@ -701,9 +699,10 @@ class MatchViewModel @Inject constructor(
     }
 
     private fun getWinnerOfSet(setTeam1: Int, setTeam2: Int): Int {
-        var winnerTeam = 0
         // When the set ends 0-0 give to victory to neither team
-        winnerTeam = if (setTeam1 != 0 && setTeam2 != 0) {
+        val winnerTeam: Int = if (setTeam1 == 0 && setTeam2 == 0) {
+            0
+        } else {
             // When team 1 ends with 7 points give them the victory instantly
             // When team 1 ends with 6 points check that team 2 haven't won with tie-break
             // When team 1 ends with less than 6 points then check if team 2 have completed the set
@@ -712,11 +711,15 @@ class MatchViewModel @Inject constructor(
                 6, 7 -> { if (setTeam2 != 7) { 1 } else { 2 } }
                 else -> { if (setTeam2 == 6) { 2 } else { 0 } }
             }
-        } else {
-            0
         }
 
         return winnerTeam
+    }
+
+    fun updateCurrentMatchState(match: MatchWithTeamsModel) {
+        _currentMatchState.value = currentMatchState.value.copy(
+            match = match
+        )
     }
 
 }

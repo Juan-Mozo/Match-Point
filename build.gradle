@@ -49,10 +49,6 @@ buildscript {
                 "compose": "com.airbnb.android:lottie-compose:$versions.lottie"
         ]
 
-        accompanist = [
-                "navigation_animation": "com.google.accompanist:accompanist-navigation-animation:$versions.accompanist"
-        ]
-
         room = [
                 "runtime": "androidx.room:room-runtime:$versions.room",
                 "ktx": "androidx.room:room-ktx:$versions.room",

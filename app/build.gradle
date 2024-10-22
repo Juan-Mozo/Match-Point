@@ -57,11 +57,12 @@ dependencies {
     implementation core.activity
 
     // Compose
-    implementation platform('androidx.compose:compose-bom:2022.10.00')
+    implementation platform('androidx.compose:compose-bom:2024.09.02')
     implementation 'androidx.compose.ui:ui'
     implementation 'androidx.compose.ui:ui-graphics'
     implementation 'androidx.compose.ui:ui-tooling-preview'
-    implementation 'androidx.core:core-ktx:+'
+    implementation 'androidx.navigation:navigation-compose:2.8.1'
+    implementation 'androidx.core:core-ktx:1.13.1'
     debugImplementation 'androidx.compose.ui:ui-tooling'
     debugImplementation 'androidx.compose.ui:ui-test-manifest'
 
@@ -77,9 +78,6 @@ dependencies {
     implementation room.runtime
     implementation room.ktx
     kapt room.compiler
-
-    // Accompanist
-    implementation accompanist.navigation_animation
 
     // Coroutines
     implementation coroutines.kotlinx_coroutines

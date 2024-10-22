@@ -4,8 +4,8 @@ import android.annotation.SuppressLint
 import android.view.FrameMetrics
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.rememberTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
@@ -15,8 +15,6 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Done
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,19 +24,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.juanimozo.matchpoint.R
 import com.juanimozo.matchpoint.domain.model.MatchWithTeamsModel
 import com.juanimozo.matchpoint.domain.model.TeamModel
-import com.juanimozo.matchpoint.presentation.components.PlayerNameText
+import com.juanimozo.matchpoint.presentation.match.components.formatElapsedTime
 import com.juanimozo.matchpoint.ui.theme.BackgroundWhite
 import com.juanimozo.matchpoint.ui.theme.DarkGreen
 import com.juanimozo.matchpoint.ui.theme.LightNavyBlue
 import com.juanimozo.matchpoint.ui.theme.Shapes
+import com.juanimozo.matchpoint.ui.theme.Size
 import kotlin.math.roundToInt
 
 @SuppressLint("UnusedTransitionTargetStateParameter")
@@ -59,7 +60,7 @@ fun HistoryCard(
             targetState = !isRevealed
         }
     }
-    val transition = updateTransition(transitionState, label = "")
+    val transition = rememberTransition(transitionState, label = "")
     val offsetTransition by transition.animateFloat(
         label = "cardOffsetTransition",
         transitionSpec = { tween(durationMillis = FrameMetrics.ANIMATION_DURATION) },
@@ -100,6 +101,7 @@ fun HistoryCard(
         ) {
             // Date
             Row(
+                modifier = Modifier.padding(8.dp),
                 horizontalArrangement = Arrangement.Start
             ) {
                 Text(
@@ -126,6 +128,7 @@ fun HistoryCard(
                     Text(
                         text = match.courtName,
                         style = MaterialTheme.typography.body1.copy(
+                            fontSize = 18.sp,
                             color = Color.Gray,
                             fontWeight = FontWeight.Bold
                         ),
@@ -139,8 +142,9 @@ fun HistoryCard(
                     verticalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        text = match.duration.toString(),
+                        text = formatElapsedTime(match.duration, simplified = true),
                         style = MaterialTheme.typography.body1.copy(
+                            fontSize = 18.sp,
                             color = Color.Gray,
                             fontWeight = FontWeight.Thin
                         )
@@ -154,8 +158,8 @@ fun HistoryCard(
                     .padding(horizontal = 12.dp),
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
-                val isTeam1Winner = (match.winnerTeam == 1 || match.winnerTeam == 0)
-                val isTeam2Winner = (match.winnerTeam == 2 || match.winnerTeam == 0)
+                val isTeam1Winner = match.winnerTeam == 1
+                val isTeam2Winner = match.winnerTeam == 2
 
                 Team(
                     team = match.team1,
@@ -166,7 +170,7 @@ fun HistoryCard(
                 )
                 Divider(
                     modifier = Modifier
-                        .padding(horizontal = 16.dp)
+                        .padding(horizontal = 18.dp)
                         .fillMaxWidth()
                 )
                 Team(
@@ -212,7 +216,11 @@ private fun Team(
             modifier = Modifier.fillMaxWidth(0.25f)
         ) {
             if (isWinner) {
-                Icon(imageVector = Icons.Filled.Done, contentDescription = "winner team")
+                Icon(
+                    painterResource(R.drawable.ic_check),
+                    modifier = Modifier.size(Size.Icon.medium),
+                    contentDescription = "Winner team"
+                )
             }
         }
         Row(

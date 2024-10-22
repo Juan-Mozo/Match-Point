@@ -90,7 +90,7 @@ class HistoryViewModel @Inject constructor(
                     playerInFilter = event.player ?: PlayerModel(),
                     playerTextField = event.player?.name ?: ""
                 )
-                getMatchesByPlayer(event.player?.id ?: 0)
+                getMatchesByPlayer(_historyState.value.playerInFilter?.id ?: 0)
             }
             is HistoryEvents.UpdatePlayerName -> {
                 // Show list of players
@@ -99,7 +99,6 @@ class HistoryViewModel @Inject constructor(
                 } else {
                     getPlayersByName(event.name)
                 }
-
                 _historyState.value = historyState.value.copy(
                     playerTextField = event.name,
                     playerInFilter = PlayerModel()
@@ -114,7 +113,7 @@ class HistoryViewModel @Inject constructor(
         )
     }
 
-    private fun getAllPlayers() {
+    fun getAllPlayers() {
         searchPlayersJob?.cancel()
         searchPlayersJob = resultUseCases.playerUseCase.getAllPlayers().onEach { result ->
             when (result) {
@@ -124,7 +123,7 @@ class HistoryViewModel @Inject constructor(
                     )
                 }
                 is Resource.Error -> {
-                    Log.e("VM", result.message!!)
+                    Log.e("History VM", result.message!!)
                 }
             }
         }.launchIn(CoroutineScope(Dispatchers.IO))
@@ -140,26 +139,48 @@ class HistoryViewModel @Inject constructor(
                     )
                 }
                 is Resource.Error -> {
-                    Log.e("VM", result.message!!)
+                    Log.e("History VM", result.message!!)
                 }
             }
         }.launchIn(CoroutineScope(Dispatchers.IO))
     }
 
-    private fun getMatchesByPlayer(playerId: Int) {
+    private fun getMatchesByPlayer(id : Int) {
         getMatchesJob?.cancel()
-        getMatchesJob = resultUseCases.getMatchesUseCase.getMatchesByPlayer(playerId).onEach { result ->
-            when (result) {
-                is Resource.Success -> {
-                    if (result.data != null) {
-                        _historyState.value = historyState.value.copy(
-                            matches = result.data
-                        )
+        getMatchesJob = resultUseCases.getMatchesUseCase.getMatchesByPlayer(id)
+            .onEach { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        if (result.data != null) {
+                            _historyState.value = historyState.value.copy(
+                                matches = result.data
+                            )
+                        }
                     }
+                is Resource.Error -> {
+                    Log.e("History VM", result.message!!)
                 }
-                is Resource.Error -> {}
             }
         }.launchIn(CoroutineScope(Dispatchers.IO))
+    }
+
+    fun getMatchById(id: Int) {
+        getMatchesJob?.cancel()
+        getMatchesJob = resultUseCases.getMatchesUseCase.getMatchById(id)
+            .onEach { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        if (result.data != null) {
+                            _historyState.value = historyState.value.copy(
+                                match = result.data
+                            )
+                        }
+                    }
+                    is Resource.Error -> {
+                        Log.e("History VM", result.message!!)
+                    }
+                }
+            }.launchIn(CoroutineScope(Dispatchers.IO))
     }
 
 }

@@ -88,9 +88,8 @@ fun CurrentMatchScreen(navController: NavController, viewModel: MatchViewModel) 
 
         // Current Points
         Row(modifier = Modifier.fillMaxWidth()) {
+            // Team 1
             Column(modifier = Modifier.fillMaxWidth(0.5f)) {
-
-                // Team 1
                 val team1points: String = if (viewModel.newMatchState.value.countPoints) {
                     matchState.team1Points.s
                 } else {
@@ -102,7 +101,6 @@ fun CurrentMatchScreen(navController: NavController, viewModel: MatchViewModel) 
                     buttonAction = { viewModel.restPoint(Teams.Team1()) }
                 )
             }
-
             // Team 2
             val team2points: String = if (viewModel.newMatchState.value.countPoints) {
                 matchState.team2Points.s
@@ -125,47 +123,25 @@ fun CurrentMatchScreen(navController: NavController, viewModel: MatchViewModel) 
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(
-                modifier = Modifier.fillMaxWidth(0.33f),
+                modifier = Modifier
+                    .fillMaxWidth(0.5f)
+                    .padding(end = 8.dp),
                 verticalArrangement = Arrangement.SpaceAround
             ) {
-                Text(
-                    text = matchState.match.team1.player1.name,
-                    style = MaterialTheme.typography.subtitle1,
-                    textAlign = TextAlign.Center,
-                    overflow = TextOverflow.Ellipsis
-                )
+                PlayerName(matchState.match.team1.player1.name)
                 if (matchState.match.team1.player2 != null) {
-                    Text(
-                        text = matchState.match.team1.player2.name,
-                        style = MaterialTheme.typography.subtitle1,
-                        textAlign = TextAlign.Center,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                    PlayerName(matchState.match.team1.player2.name)
                 }
             }
-
-            Text(
-                modifier = Modifier.fillMaxWidth(0.5f),
-                text = "-",
-                style = MaterialTheme.typography.subtitle1,
-                textAlign = TextAlign.Start
-            )
             Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 8.dp),
                 verticalArrangement = Arrangement.SpaceAround
             ) {
-                Text(
-                    text = matchState.match.team2.player1.name,
-                    style = MaterialTheme.typography.subtitle1,
-                    textAlign = TextAlign.Center,
-                    overflow = TextOverflow.Ellipsis
-                )
+                PlayerName(matchState.match.team2.player1.name)
                 if (matchState.match.team2.player2 != null) {
-                    Text(
-                        text = matchState.match.team2.player2.name,
-                        style = MaterialTheme.typography.subtitle1,
-                        textAlign = TextAlign.Center,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                    PlayerName(matchState.match.team2.player2.name)
                 }
             }
         }
@@ -187,4 +163,14 @@ fun CurrentMatchScreen(navController: NavController, viewModel: MatchViewModel) 
             )
         }
     }
+}
+
+@Composable
+private fun PlayerName(name: String) {
+    Text(
+        text = name,
+        style = MaterialTheme.typography.subtitle1,
+        textAlign = TextAlign.Center,
+        overflow = TextOverflow.Clip
+    )
 }

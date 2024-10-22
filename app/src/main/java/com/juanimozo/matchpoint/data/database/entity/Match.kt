@@ -25,9 +25,7 @@ data class Match(
     @ColumnInfo(name = "set2_team2") val set2Team2: Int = 0,
     @ColumnInfo(name = "set3_team1") val set3Team1: Int = 0,
     @ColumnInfo(name = "set3_team2") val set3Team2: Int = 0,
-    // ToDo:: -MatchEntity- *1* / Priority: M
-    // Description: change to 0
-    @ColumnInfo(name = "winner_team") val winnerTeam: Int = 1
+    @ColumnInfo(name = "winner_team") val winnerTeam: Int = 0
 ) {
     fun toMatchModel(team1: TeamModel, team2: TeamModel): MatchWithTeamsModel {
         return MatchWithTeamsModel(

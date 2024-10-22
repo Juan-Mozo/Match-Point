@@ -4,6 +4,7 @@ import com.juanimozo.matchpoint.domain.model.MatchWithTeamsModel
 import com.juanimozo.matchpoint.domain.model.PlayerModel
 
 data class HistoryState(
+    val match: MatchWithTeamsModel = MatchWithTeamsModel(),
     val matches: List<MatchWithTeamsModel> = emptyList(),
     val revealedCard: MatchWithTeamsModel? = null,
     val playerInFilter: PlayerModel? = null,

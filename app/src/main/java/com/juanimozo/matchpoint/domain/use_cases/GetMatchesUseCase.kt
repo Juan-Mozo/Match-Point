@@ -13,8 +13,12 @@ class GetMatchesUseCase(
         return repository.getAllMatches()
     }
 
+    fun getMatchById(id: Int): Flow<Resource<MatchWithTeamsModel>> {
+        return repository.getMatchById(id)
+    }
+
     fun getMatchesByPlayer(id: Int): Flow<Resource<List<MatchWithTeamsModel>>> {
-        return repository.getAllMatches()
+        return repository.getMatchesByPlayer(id)
     }
 
     fun getMatchesByTeam(player1Id: Int, player2Id: Int): Flow<Resource<List<MatchWithTeamsModel>>> {
