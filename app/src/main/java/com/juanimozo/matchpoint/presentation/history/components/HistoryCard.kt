@@ -111,7 +111,8 @@ fun HistoryCard(
                         fontWeight = FontWeight.Light,
                         color = DarkGreen
                     ),
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1
                 )
             }
             // Court and Duration
@@ -132,7 +133,8 @@ fun HistoryCard(
                             color = Color.Gray,
                             fontWeight = FontWeight.Bold
                         ),
-                        overflow = TextOverflow.Ellipsis
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 1
                     )
                 }
                 // Duration
@@ -147,7 +149,9 @@ fun HistoryCard(
                             fontSize = 18.sp,
                             color = Color.Gray,
                             fontWeight = FontWeight.Thin
-                        )
+                        ),
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 1
                     )
                 }
             }
@@ -242,7 +246,8 @@ private fun Player(name: String, isWinner: Boolean) {
             color = color,
             fontWeight = FontWeight.Bold
         ),
-        overflow = TextOverflow.Ellipsis
+        overflow = TextOverflow.Ellipsis,
+        maxLines = 1
     )
 }
 

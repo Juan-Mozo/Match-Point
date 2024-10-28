@@ -95,6 +95,7 @@ class HistoryViewModel @Inject constructor(
             is HistoryEvents.UpdatePlayerName -> {
                 // Show list of players
                 if (event.name.isBlank()) {
+                    getAllMatches()
                     getAllPlayers()
                 } else {
                     getPlayersByName(event.name)
@@ -162,25 +163,6 @@ class HistoryViewModel @Inject constructor(
                 }
             }
         }.launchIn(CoroutineScope(Dispatchers.IO))
-    }
-
-    fun getMatchById(id: Int) {
-        getMatchesJob?.cancel()
-        getMatchesJob = resultUseCases.getMatchesUseCase.getMatchById(id)
-            .onEach { result ->
-                when (result) {
-                    is Resource.Success -> {
-                        if (result.data != null) {
-                            _historyState.value = historyState.value.copy(
-                                match = result.data
-                            )
-                        }
-                    }
-                    is Resource.Error -> {
-                        Log.e("History VM", result.message!!)
-                    }
-                }
-            }.launchIn(CoroutineScope(Dispatchers.IO))
     }
 
 }

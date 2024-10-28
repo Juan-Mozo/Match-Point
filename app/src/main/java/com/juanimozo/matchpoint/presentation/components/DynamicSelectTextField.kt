@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.Divider
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ExposedDropdownMenuBox
@@ -87,7 +86,9 @@ fun DynamicSelectTextField(
                         }
                     ) {
                         Row(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp),
                             horizontalArrangement = Arrangement.SpaceAround,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -102,9 +103,6 @@ fun DynamicSelectTextField(
                                 style = MaterialTheme.typography.body2
                             )
                         }
-                        if (options.isNotEmpty()) {
-                            ListDivider()
-                        }
                     }
                 }
 
@@ -115,30 +113,16 @@ fun DynamicSelectTextField(
                             onValueChangedEvent(option)
                         }
                     ) {
-                        Text(
-                            textAlign = TextAlign.Center,
-                            text = option.name,
-                            style = MaterialTheme.typography.body1
-                        )
-                        if (index < options.lastIndex) {
-                            ListDivider()
+                        Column {
+                            Text(
+                                modifier = Modifier.padding(vertical = 4.dp),
+                                text = option.name,
+                                style = MaterialTheme.typography.body1
+                            )
                         }
                     }
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun ListDivider() {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center
-    ) {
-        Divider(
-            modifier = Modifier.fillMaxWidth(0.7f),
-            color = Color.Gray
-        )
     }
 }

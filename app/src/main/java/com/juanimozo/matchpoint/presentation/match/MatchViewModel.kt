@@ -22,6 +22,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -96,10 +97,10 @@ class MatchViewModel @Inject constructor(
             val numberOfSets = when (m.currentSet) {
                 is Sets.FirstSet -> 1
                 is Sets.SecondSet -> 2
-                is Sets.ThirdSet -> 3
+                is Sets.ThirdSet, Sets.Finished -> 3
             }
 
-            // Update last set played when match didn't end with 3 complete sets
+            // Update unfinished sets
             var firstSetTeam1 = m.match.set1Team1
             var firstSetTeam2 = m.match.set1Team2
             var secondSetTeam1 = m.match.set2Team1
@@ -120,8 +121,8 @@ class MatchViewModel @Inject constructor(
                     thirdSetTeam1 = m.currentSetTeam1
                     thirdSetTeam2 = m.currentSetTeam2
                 }
+                Sets.Finished -> {}
             }
-            updateLastSetToState()
 
             // Update winner
             updateMatchWinner()
@@ -439,13 +440,13 @@ class MatchViewModel @Inject constructor(
             is Teams.Team1 -> {
                 if (currentMatchState.value.currentSetTeam1 == 6 && currentMatchState.value.currentSetTeam2 == 5) {
                     // Result is 7 - 5
-                    finishSet(Teams.Team1())
+                    endSet(Teams.Team1())
                 } else if (currentMatchState.value.currentSetTeam1 == 5 && currentMatchState.value.currentSetTeam2 < 5) {
                     // Result is 6 - 4
-                    finishSet(Teams.Team1())
+                    endSet(Teams.Team1())
                 } else if (currentMatchState.value.currentSetTeam1 == 6 && currentMatchState.value.currentSetTeam2 == 6) {
                     // Result is 7 - 6
-                    finishSet(Teams.Team1())
+                    endSet(Teams.Team1())
                 } else {
                     // Result is anything else
                     _currentMatchState.value = currentMatchState.value.copy(
@@ -456,13 +457,13 @@ class MatchViewModel @Inject constructor(
             is Teams.Team2 -> {
                 if (currentMatchState.value.currentSetTeam2 == 6 && currentMatchState.value.currentSetTeam1 == 5) {
                     // Result is 5 - 7
-                    finishSet(Teams.Team2())
+                    endSet(Teams.Team2())
                 } else if (currentMatchState.value.currentSetTeam2 == 5 && currentMatchState.value.currentSetTeam1 < 5) {
                     // Result is 4 - 6
-                    finishSet(Teams.Team2())
+                    endSet(Teams.Team2())
                 } else if (currentMatchState.value.currentSetTeam1 == 6 && currentMatchState.value.currentSetTeam2 == 6) {
                     // Result is 7 - 6
-                    finishSet(Teams.Team2())
+                    endSet(Teams.Team2())
                 }  else {
                     // Result is anything else
                     _currentMatchState.value = currentMatchState.value.copy(
@@ -473,7 +474,7 @@ class MatchViewModel @Inject constructor(
         }
     }
 
-    private fun finishSet(winnerTeam: Teams) {
+    private fun endSet(winnerTeam: Teams) {
         val m = currentMatchState.value
         when (winnerTeam) {
             is Teams.Team1 -> {
@@ -500,16 +501,17 @@ class MatchViewModel @Inject constructor(
                             )
                         )
                     }
-                    Sets.ThirdSet -> {
-                        viewModelScope.launch {
-                            _currentMatchState.value = m.copy(
-                                match = m.match.copy(
-                                    set3Team1 = m.currentSetTeam1 + 1,
-                                    set3Team2 = m.currentSetTeam2
-                                )
+                    Sets.ThirdSet, Sets.Finished -> {
+                        _currentMatchState.value = m.copy(
+                            currentSet = Sets.Finished,
+                            currentSetTeam1 = 0,
+                            currentSetTeam2 = 0,
+                            match = m.match.copy(
+                                set3Team1 = m.currentSetTeam1 + 1,
+                                set3Team2 = m.currentSetTeam2
                             )
-                            endMatch()
-                        }
+                        )
+                        endMatch()
                     }
                 }
             }
@@ -537,16 +539,17 @@ class MatchViewModel @Inject constructor(
                             )
                         )
                     }
-                    Sets.ThirdSet -> {
-                        viewModelScope.launch {
-                            _currentMatchState.value = m.copy(
-                                match = m.match.copy(
-                                    set3Team1 = m.currentSetTeam1,
-                                    set3Team2 = m.currentSetTeam2 + 1
-                                )
+                    Sets.ThirdSet, Sets.Finished-> {
+                        _currentMatchState.value = m.copy(
+                            currentSet = Sets.Finished,
+                            currentSetTeam1 = 0,
+                            currentSetTeam2 = 0,
+                            match = m.match.copy(
+                                set3Team1 = m.currentSetTeam1,
+                                set3Team2 = m.currentSetTeam2 + 1
                             )
-                            endMatch()
-                        }
+                        )
+                        endMatch()
                     }
                 }
             }
@@ -558,36 +561,6 @@ class MatchViewModel @Inject constructor(
             team1Points = Points.Zero(),
             team2Points = Points.Zero()
         )
-    }
-
-    private fun updateLastSetToState() {
-        val m = currentMatchState.value
-        when (m.currentSet) {
-            is Sets.FirstSet -> {
-                _currentMatchState.value = m.copy(
-                    match = m.match.copy(
-                        set1Team1 = m.currentSetTeam1,
-                        set1Team2 = m.currentSetTeam2
-                    )
-                )
-            }
-            is Sets.SecondSet -> {
-                _currentMatchState.value = m.copy(
-                    match = m.match.copy(
-                        set2Team1 = m.currentSetTeam1,
-                        set2Team2 = m.currentSetTeam2
-                    )
-                )
-            }
-            is Sets.ThirdSet -> {
-                _currentMatchState.value = m.copy(
-                    match = m.match.copy(
-                        set3Team1 = m.currentSetTeam1,
-                        set3Team2 = m.currentSetTeam2
-                    )
-                )
-            }
-        }
     }
 
     fun getAllPlayers() {

@@ -23,6 +23,7 @@ import androidx.navigation.NavController
 import com.juanimozo.matchpoint.R
 import com.juanimozo.matchpoint.domain.model.PlayerModel
 import com.juanimozo.matchpoint.navigation.Screens
+import com.juanimozo.matchpoint.presentation.components.CustomTopBar
 import com.juanimozo.matchpoint.presentation.components.DynamicSelectTextField
 import com.juanimozo.matchpoint.presentation.history.components.ActionsRow
 import com.juanimozo.matchpoint.ui.theme.NavyBlue
@@ -60,6 +61,9 @@ fun HistoryScreen(navController: NavController, historyViewModel: HistoryViewMod
                     verticalArrangement = Arrangement.Top
                 ) {
                     HistoryScreenTitle(
+                        onNavigateUp = { navController.navigate(Screens.Main.route) {
+                            popUpTo(Screens.Main.route)
+                        }},
                         state = state,
                         onTextValueChange = { query ->
                             historyViewModel.onHistoryEvent(HistoryEvents.UpdatePlayerName(query))
@@ -154,6 +158,7 @@ private fun NoMatchFoundScreen() {
 
 @Composable
 private fun HistoryScreenTitle(
+    onNavigateUp: () -> Unit,
     state: HistoryState,
     onTextValueChange: (String) -> Unit,
     onValueChangedEvent: (PlayerModel) -> Unit
@@ -167,22 +172,15 @@ private fun HistoryScreenTitle(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.SpaceAround,
         ) {
-            Row(
+            CustomTopBar(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    modifier = Modifier.padding(8.dp),
-                    text = "HISTORIAL",
-                    style = MaterialTheme.typography.h2.copy(
-                        fontSize = 30.sp
-                    )
-                )
-            }
+                title = "Historial",
+                navigateUp = onNavigateUp
+            )
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 8.dp, top = 16.dp, start = 16.dp, end = 16.dp),
+                    .padding(bottom = 8.dp, top = 8.dp, start = 16.dp, end = 16.dp),
                 horizontalArrangement = Arrangement.SpaceAround,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -202,14 +200,4 @@ private fun HistoryScreenTitle(
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun PreviewHistoryScreenTitle(){
-    HistoryScreenTitle(
-        state = HistoryState(),
-        onValueChangedEvent = {},
-        onTextValueChange = {}
-    )
 }

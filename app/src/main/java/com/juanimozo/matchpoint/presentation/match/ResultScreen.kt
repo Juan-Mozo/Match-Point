@@ -7,7 +7,6 @@ import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -16,16 +15,17 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.juanimozo.matchpoint.R
 import com.juanimozo.matchpoint.domain.model.MatchWithTeamsModel
 import com.juanimozo.matchpoint.domain.model.PlayerModel
 import com.juanimozo.matchpoint.domain.model.TeamModel
 import com.juanimozo.matchpoint.navigation.Screens
+import com.juanimozo.matchpoint.presentation.components.CustomTopBar
 import com.juanimozo.matchpoint.presentation.match.components.formatElapsedTime
 import com.juanimozo.matchpoint.ui.theme.NavyBlue
 import com.juanimozo.matchpoint.presentation.components.GenericButton
-import com.juanimozo.matchpoint.presentation.history.HistoryViewModel
 import com.juanimozo.matchpoint.ui.util.Set
 
 @Composable
@@ -38,6 +38,7 @@ fun ResultScreen(navController: NavController, viewModel: MatchViewModel) {
         verticalArrangement = Arrangement.Top
     ) {
         BackgroundImageAndTeamNames(match)
+
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -89,7 +90,9 @@ fun ResultScreen(navController: NavController, viewModel: MatchViewModel) {
                     )
                     Text(
                         text = match.courtName,
-                        style = MaterialTheme.typography.subtitle2
+                        style = MaterialTheme.typography.subtitle2,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 1
                     )
                 }
             }
@@ -208,18 +211,10 @@ private fun PlayerText(name: String) {
     Text(
         modifier = Modifier.padding(8.dp),
         text = name,
-        style = MaterialTheme.typography.subtitle1,
-        overflow = TextOverflow.Clip
-    )
-}
-
-@Preview
-@Composable
-fun BackgroundImageAndTeamNamesPreview() {
-    BackgroundImageAndTeamNames(
-        MatchWithTeamsModel(
-            team1 = TeamModel(player1 = PlayerModel(name = "Juani"), player2 = PlayerModel(name = "Esmeralda")),
-            team2 = TeamModel(player1 = PlayerModel(name = "Jorge"), player2 = PlayerModel(name = "Valentina"))
-        )
+        style = MaterialTheme.typography.subtitle1.copy(
+            fontSize = 22.sp
+        ),
+        overflow = TextOverflow.Ellipsis,
+        maxLines = 1
     )
 }

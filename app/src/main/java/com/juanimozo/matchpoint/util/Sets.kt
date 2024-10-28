@@ -4,4 +4,5 @@ sealed class Sets {
     object FirstSet : Sets()
     object SecondSet : Sets()
     object ThirdSet : Sets()
+    object Finished : Sets()
 }

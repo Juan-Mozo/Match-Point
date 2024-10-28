@@ -1,7 +1,9 @@
 package com.juanimozo.matchpoint.navigation
 
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandIn
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -18,16 +20,25 @@ import com.juanimozo.matchpoint.presentation.match.ResultScreen
 fun Navigation(navController: NavHostController, matchViewModel: MatchViewModel, historyViewModel: HistoryViewModel) {
     NavHost(
         navController = navController,
-        startDestination = Screens.Main.route
+        startDestination = Screens.Main.route,
+        enterTransition = {
+            expandIn(tween(700, easing = LinearEasing))
+        }
     ) {
         // Main Screen
         composable(
             route = Screens.Main.route,
             enterTransition = {
-                slideInHorizontally()
+                slideIntoContainer(
+                    AnimatedContentTransitionScope.SlideDirection.Start,
+                    tween(700)
+                )
             },
             exitTransition = {
-                slideOutHorizontally()
+                slideOutOfContainer(
+                    AnimatedContentTransitionScope.SlideDirection.Start,
+                    tween(700)
+                )
             }
         ) {
             HomeScreen(navController = navController, matchViewModel = matchViewModel, historyViewModel = historyViewModel)
@@ -37,10 +48,16 @@ fun Navigation(navController: NavHostController, matchViewModel: MatchViewModel,
         composable(
             Screens.NewMatch.route,
             enterTransition = {
-                slideInHorizontally()
+                slideIntoContainer(
+                    AnimatedContentTransitionScope.SlideDirection.Start,
+                    tween(700)
+                )
             },
             exitTransition = {
-                slideOutHorizontally()
+                slideOutOfContainer(
+                    AnimatedContentTransitionScope.SlideDirection.Start,
+                    tween(700)
+                )
             }
         ) {
             NewMatchScreen(navController = navController, viewModel = matchViewModel)
@@ -50,10 +67,16 @@ fun Navigation(navController: NavHostController, matchViewModel: MatchViewModel,
         composable(
             route = Screens.History.route,
             enterTransition = {
-                slideInHorizontally()
+                slideIntoContainer(
+                    AnimatedContentTransitionScope.SlideDirection.Start,
+                    tween(700)
+                )
             },
             exitTransition = {
-                slideOutHorizontally()
+                slideOutOfContainer(
+                    AnimatedContentTransitionScope.SlideDirection.Start,
+                    tween(700)
+                )
             }
         ) {
             HistoryScreen(navController = navController, matchViewModel = matchViewModel, historyViewModel = historyViewModel)
@@ -63,10 +86,16 @@ fun Navigation(navController: NavHostController, matchViewModel: MatchViewModel,
         composable(
             route = Screens.CurrentMatch.route,
             enterTransition = {
-                slideInHorizontally()
+                slideIntoContainer(
+                    AnimatedContentTransitionScope.SlideDirection.Start,
+                    tween(700)
+                )
             },
             exitTransition = {
-                slideOutHorizontally()
+                slideOutOfContainer(
+                    AnimatedContentTransitionScope.SlideDirection.Start,
+                    tween(700)
+                )
             }
         ) {
             CurrentMatchScreen(navController = navController, viewModel = matchViewModel)
@@ -76,10 +105,16 @@ fun Navigation(navController: NavHostController, matchViewModel: MatchViewModel,
         composable(
             route = Screens.Result.route,
             enterTransition = {
-                slideInHorizontally()
+                slideIntoContainer(
+                    AnimatedContentTransitionScope.SlideDirection.Start,
+                    tween(700)
+                )
             },
             exitTransition = {
-                slideOutHorizontally()
+                slideOutOfContainer(
+                    AnimatedContentTransitionScope.SlideDirection.Start,
+                    tween(700)
+                )
             }
         ) {
             ResultScreen(navController = navController, viewModel = matchViewModel)

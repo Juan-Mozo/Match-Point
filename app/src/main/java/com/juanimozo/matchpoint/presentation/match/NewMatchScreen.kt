@@ -16,6 +16,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.juanimozo.matchpoint.R
+import com.juanimozo.matchpoint.navigation.Screens
+import com.juanimozo.matchpoint.presentation.components.CustomTopBar
 import com.juanimozo.matchpoint.presentation.match.event.NewMatchEvents
 import com.juanimozo.matchpoint.ui.theme.NavyBlue
 import com.juanimozo.matchpoint.presentation.components.GenericButton
@@ -72,17 +74,33 @@ fun NewMatchScreen(navController: NavController, viewModel: MatchViewModel) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().height(60.dp)
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.Top
                 ) {
-                    Column(modifier = Modifier.fillMaxWidth(0.5f)) {
-                        MatchTypeCard(text = "Singles", isSinglesSelected) {
-                            viewModel.onRegistrationEvent(NewMatchEvents.UpdateMatchType(MatchType.SINGLES))
+                    CustomTopBar(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 8.dp),
+                        title = "Nuevo partido",
+                        navigateUp = {
+                            navController.navigate(Screens.Main.route) {
+                                popUpTo(Screens.Main.route)
+                            }
                         }
-                    }
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        MatchTypeCard(text = "Dobles", isDoublesSelected) {
-                            viewModel.onRegistrationEvent(NewMatchEvents.UpdateMatchType(MatchType.DOUBLES))
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth().height(60.dp)
+                    ) {
+                        Column(modifier = Modifier.fillMaxWidth(0.5f)) {
+                            MatchTypeCard(text = "Singles", isSinglesSelected) {
+                                viewModel.onRegistrationEvent(NewMatchEvents.UpdateMatchType(MatchType.SINGLES))
+                            }
+                        }
+                        Column(modifier = Modifier.fillMaxWidth()) {
+                            MatchTypeCard(text = "Dobles", isDoublesSelected) {
+                                viewModel.onRegistrationEvent(NewMatchEvents.UpdateMatchType(MatchType.DOUBLES))
+                            }
                         }
                     }
                 }
@@ -121,7 +139,7 @@ fun NewMatchScreen(navController: NavController, viewModel: MatchViewModel) {
 @Composable
 private fun FieldTitle(text: String) {
     Text(
-        modifier = Modifier.padding(vertical = 12.dp),
+        modifier = Modifier.padding(top = 12.dp, bottom = 6.dp),
         text = text,
         style = MaterialTheme.typography.subtitle2
     )

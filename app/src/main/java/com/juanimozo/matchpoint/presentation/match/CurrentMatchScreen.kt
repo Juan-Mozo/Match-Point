@@ -10,6 +10,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.NavOptions
 import com.juanimozo.matchpoint.navigation.Screens
 import com.juanimozo.matchpoint.presentation.match.components.Chronometer
 import com.juanimozo.matchpoint.ui.theme.NavyBlue
@@ -28,7 +29,9 @@ fun CurrentMatchScreen(navController: NavController, viewModel: MatchViewModel) 
     LaunchedEffect(Unit) {
         viewModel.userEventsState.collectLatest {
             if (it.isMatchEnded) {
-                navController.navigate(Screens.Result.route)
+                navController.navigate(
+                    route = Screens.Result.route,
+                )
             }
         }
     }
@@ -126,7 +129,8 @@ fun CurrentMatchScreen(navController: NavController, viewModel: MatchViewModel) 
                 modifier = Modifier
                     .fillMaxWidth(0.5f)
                     .padding(end = 8.dp),
-                verticalArrangement = Arrangement.SpaceAround
+                verticalArrangement = Arrangement.SpaceAround,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 PlayerName(matchState.match.team1.player1.name)
                 if (matchState.match.team1.player2 != null) {
@@ -137,7 +141,8 @@ fun CurrentMatchScreen(navController: NavController, viewModel: MatchViewModel) 
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 8.dp),
-                verticalArrangement = Arrangement.SpaceAround
+                verticalArrangement = Arrangement.SpaceAround,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 PlayerName(matchState.match.team2.player1.name)
                 if (matchState.match.team2.player2 != null) {
@@ -170,7 +175,7 @@ private fun PlayerName(name: String) {
     Text(
         text = name,
         style = MaterialTheme.typography.subtitle1,
-        textAlign = TextAlign.Center,
-        overflow = TextOverflow.Clip
+        overflow = TextOverflow.Ellipsis,
+        maxLines = 1
     )
 }
