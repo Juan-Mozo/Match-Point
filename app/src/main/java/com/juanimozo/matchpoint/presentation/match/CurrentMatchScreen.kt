@@ -1,16 +1,19 @@
 package com.juanimozo.matchpoint.presentation.match
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.NavOptions
 import com.juanimozo.matchpoint.navigation.Screens
 import com.juanimozo.matchpoint.presentation.match.components.Chronometer
 import com.juanimozo.matchpoint.ui.theme.NavyBlue
@@ -25,14 +28,45 @@ import kotlinx.coroutines.flow.collectLatest
 fun CurrentMatchScreen(navController: NavController, viewModel: MatchViewModel) {
 
     val matchState = viewModel.currentMatchState.value
+    val scaffoldState = rememberScaffoldState()
+    var backPressedCount by remember { mutableStateOf(0)}
 
     LaunchedEffect(Unit) {
         viewModel.userEventsState.collectLatest {
+            // Navigate to next screen when match has ended
             if (it.isMatchEnded) {
                 navController.navigate(
-                    route = Screens.Result.route,
+                    Screens.Result.route.replace(
+                        oldValue = "newMatch",
+                        newValue = "true"
+                    )
                 )
             }
+            // Show snackbar to warn user of closing screen
+            if (it.snackbarMessage.isNotBlank()) {
+                val snackbarResult = scaffoldState.snackbarHostState.showSnackbar(
+                    message = it.snackbarMessage,
+                    duration = SnackbarDuration.Short,
+                    actionLabel = "Volver"
+                )
+                when (snackbarResult) {
+                    SnackbarResult.Dismissed -> {
+                        backPressedCount = 0
+                    }
+                    SnackbarResult.ActionPerformed -> {
+                        navController.popBackStack()
+                    }
+                }
+            }
+        }
+    }
+
+    BackHandler(enabled = true) {
+        if (backPressedCount == 0) {
+            viewModel.showSnackbar("¿Está seguro que desea volver? Se perderá la partida actual")
+            backPressedCount++
+        } else {
+            navController.popBackStack()
         }
     }
 

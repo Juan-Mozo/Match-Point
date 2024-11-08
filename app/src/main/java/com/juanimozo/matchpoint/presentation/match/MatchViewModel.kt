@@ -22,7 +22,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -124,9 +123,6 @@ class MatchViewModel @Inject constructor(
                 Sets.Finished -> {}
             }
 
-            // Update winner
-            updateMatchWinner()
-
             // Update current match with final results
             _currentMatchState.value = currentMatchState.value.copy(
                 match = currentMatchState.value.match.copy(
@@ -140,6 +136,9 @@ class MatchViewModel @Inject constructor(
                     set3Team2 = thirdSetTeam2,
                 )
             )
+
+            // Update winner
+            updateMatchWinner()
         }
 
         // Save Values
@@ -677,9 +676,8 @@ class MatchViewModel @Inject constructor(
             0
         } else {
             // When team 1 ends with 7 points give them the victory instantly
-            // When team 1 ends with 6 points check that team 2 haven't won with tie-break
-            // When team 1 ends with less than 6 points then check if team 2 have completed the set
-            // If neither team completed the set then give the victory to neither of them
+            // When team 1 ends with 6 points check that team 2 hasn't won with tie-break
+            // When team 1 ends with less than 6 points then check if team 2 has completed the set
             when (setTeam1) {
                 6, 7 -> { if (setTeam2 != 7) { 1 } else { 2 } }
                 else -> { if (setTeam2 == 6) { 2 } else { 0 } }

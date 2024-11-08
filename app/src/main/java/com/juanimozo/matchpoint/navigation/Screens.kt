@@ -5,5 +5,5 @@ sealed class Screens(val route: String) {
     object NewMatch : Screens(route = "new-match")
     object History : Screens(route = "history")
     object CurrentMatch : Screens(route = "current-match")
-    object Result : Screens(route = "result")
+    object Result : Screens(route = "result?isNewMatch={isNewMatch}")
 }

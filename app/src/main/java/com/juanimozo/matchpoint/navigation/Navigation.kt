@@ -6,8 +6,10 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandIn
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.juanimozo.matchpoint.presentation.match.MatchViewModel
 import com.juanimozo.matchpoint.presentation.history.HistoryScreen
 import com.juanimozo.matchpoint.presentation.history.HistoryViewModel
@@ -104,6 +106,12 @@ fun Navigation(navController: NavHostController, matchViewModel: MatchViewModel,
         // Result Screen
         composable(
             route = Screens.Result.route,
+            arguments = listOf(
+                navArgument("isNewMatch") {
+                    defaultValue = true
+                    type = NavType.BoolType
+                }
+            ),
             enterTransition = {
                 slideIntoContainer(
                     AnimatedContentTransitionScope.SlideDirection.Start,
@@ -116,8 +124,15 @@ fun Navigation(navController: NavHostController, matchViewModel: MatchViewModel,
                     tween(700)
                 )
             }
-        ) {
-            ResultScreen(navController = navController, viewModel = matchViewModel)
+        ) { navBackStackEntry ->
+            val isNewMatch = navBackStackEntry.arguments?.getBoolean("isNewMatch")
+            if (isNewMatch != null) {
+                ResultScreen(
+                    navController = navController,
+                    viewModel = matchViewModel,
+                    isNewMatch = isNewMatch
+                )
+            }
         }
 
     }

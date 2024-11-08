@@ -1,5 +1,6 @@
 package com.juanimozo.matchpoint.presentation.history
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -12,13 +13,10 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.juanimozo.matchpoint.R
 import com.juanimozo.matchpoint.domain.model.PlayerModel
@@ -28,17 +26,20 @@ import com.juanimozo.matchpoint.presentation.components.DynamicSelectTextField
 import com.juanimozo.matchpoint.presentation.history.components.ActionsRow
 import com.juanimozo.matchpoint.ui.theme.NavyBlue
 import com.juanimozo.matchpoint.presentation.components.GenericButton
-import com.juanimozo.matchpoint.presentation.components.animation.VisibilityAnimation
 import com.juanimozo.matchpoint.presentation.history.components.HistoryCard
 import com.juanimozo.matchpoint.presentation.history.event.HistoryEvents
 import com.juanimozo.matchpoint.presentation.history.state.HistoryState
 import com.juanimozo.matchpoint.presentation.match.MatchViewModel
 import com.juanimozo.matchpoint.ui.theme.BackgroundWhite
-import com.juanimozo.matchpoint.ui.theme.DarkGreen
 
 @Composable
 fun HistoryScreen(navController: NavController, historyViewModel: HistoryViewModel, matchViewModel: MatchViewModel) {
+
     val state = historyViewModel.historyState.value
+
+    BackHandler(enabled = true) {
+        navController.navigate(Screens.Main.route)
+    }
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -98,7 +99,12 @@ fun HistoryScreen(navController: NavController, historyViewModel: HistoryViewMod
                                     cardHeight = cardHeight,
                                     onClick = {
                                         matchViewModel.updateCurrentMatchState(match)
-                                        navController.navigate(Screens.Result.route)
+                                        navController.navigate(
+                                            Screens.Result.route.replace(
+                                                oldValue = "newMatch",
+                                                newValue = "false"
+                                            )
+                                        )
                                     },
                                     onCollapse = { historyViewModel.onHistoryEvent(HistoryEvents.CollapseCard(match)) },
                                     onExpand = { historyViewModel.onHistoryEvent(HistoryEvents.ExpandCard(match)) }

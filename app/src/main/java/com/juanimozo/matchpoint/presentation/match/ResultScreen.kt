@@ -1,5 +1,6 @@
 package com.juanimozo.matchpoint.presentation.match
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,25 +14,29 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.juanimozo.matchpoint.R
 import com.juanimozo.matchpoint.domain.model.MatchWithTeamsModel
-import com.juanimozo.matchpoint.domain.model.PlayerModel
-import com.juanimozo.matchpoint.domain.model.TeamModel
 import com.juanimozo.matchpoint.navigation.Screens
-import com.juanimozo.matchpoint.presentation.components.CustomTopBar
 import com.juanimozo.matchpoint.presentation.match.components.formatElapsedTime
 import com.juanimozo.matchpoint.ui.theme.NavyBlue
 import com.juanimozo.matchpoint.presentation.components.GenericButton
 import com.juanimozo.matchpoint.ui.util.Set
 
 @Composable
-fun ResultScreen(navController: NavController, viewModel: MatchViewModel) {
+fun ResultScreen(navController: NavController, viewModel: MatchViewModel, isNewMatch: Boolean) {
 
     val match = viewModel.currentMatchState.value.match
+
+    BackHandler(enabled = true) {
+        if (isNewMatch) {
+            navController.popBackStack(Screens.Main.route, true)
+        } else {
+            navController.navigate(Screens.History.route)
+        }
+    }
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -121,7 +126,13 @@ fun ResultScreen(navController: NavController, viewModel: MatchViewModel) {
                         .padding(horizontal = 64.dp)
                         .fillMaxWidth(),
                     color = NavyBlue,
-                    onClick = { navController.navigate(Screens.History.route) },
+                    onClick = {
+                        if (isNewMatch) {
+                            navController.popBackStack(Screens.Main.route, true)
+                        } else {
+                            navController.navigate(Screens.History.route)
+                        }
+                    },
                     text = "Volver"
                 )
             }

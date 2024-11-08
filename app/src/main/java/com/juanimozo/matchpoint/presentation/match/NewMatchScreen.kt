@@ -1,5 +1,6 @@
 package com.juanimozo.matchpoint.presentation.match
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
@@ -49,6 +50,10 @@ fun NewMatchScreen(navController: NavController, viewModel: MatchViewModel) {
                 )
             }
         }
+    }
+
+    BackHandler(enabled = true) {
+        navController.navigate(Screens.Main.route)
     }
 
     Scaffold(
