@@ -32,7 +32,7 @@ fun ResultScreen(navController: NavController, viewModel: MatchViewModel, isNewM
 
     BackHandler(enabled = true) {
         if (isNewMatch) {
-            navController.popBackStack(Screens.Main.route, true)
+            navController.navigate(Screens.Main.route)
         } else {
             navController.navigate(Screens.History.route)
         }
